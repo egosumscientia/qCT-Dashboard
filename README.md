@@ -68,13 +68,26 @@ Esto permite tener un dashboard completo sin dependencia de datos reales.
 Config base en `app/core/config.py`:
 
 - `DATABASE_URL`: URL de PostgreSQL.
-- `ENVIRONMENT`: entorno (dev/prod).
+- `ENVIRONMENT`: entorno (dev/demo/prod).
 - `AUTH_FAKE_USER`: usuario demo para auditoria.
 - `DATA_SOURCE`: origen de datos (`mock` u `orthanc`).
 - `ALLOW_PHI`: permitir datos de paciente reales (default `false`).
 - `ORTHANC_URL`: base URL de Orthanc (default `http://localhost:8042`).
 - `ORTHANC_USERNAME`: usuario de Orthanc (opcional).
 - `ORTHANC_PASSWORD`: password de Orthanc (opcional).
+- `LOG_LEVEL`: nivel de log (`INFO`, `DEBUG`, etc).
+- `REQUEST_ID_HEADER`: header de correlacion (`X-Request-ID`).
+- `CORS_ALLOW_ORIGINS`: lista CSV de origins permitidos.
+- `CORS_ALLOW_METHODS`: lista CSV de metodos permitidos.
+- `CORS_ALLOW_HEADERS`: lista CSV de headers permitidos.
+- `CORS_ALLOW_CREDENTIALS`: permitir credenciales en CORS.
+- `READY_CHECK_DB`: habilitar check de DB en readiness.
+- `DB_POOL_SIZE`: pool size de SQLAlchemy.
+- `DB_MAX_OVERFLOW`: max overflow del pool.
+- `DB_POOL_TIMEOUT`: timeout del pool (segundos).
+- `DB_POOL_RECYCLE`: recycle del pool (segundos).
+- `DB_CONNECT_TIMEOUT`: timeout de conexion (segundos).
+- `DB_STATEMENT_TIMEOUT_MS`: timeout de statement (ms, 0 desactiva).
 
 ### Build y runtime
 
@@ -82,13 +95,17 @@ Config base en `app/core/config.py`:
    ```bash
    docker build -t qct-dashboard:latest .
    ```
-2. Correr en produccion (ejemplo con Docker):
+2. Correr en produccion (ejemplo con Docker/Gunicorn):
    ```bash
    docker run -d \
      -p 8000:8000 \
      -e DATABASE_URL=postgresql+psycopg2://user:pass@db:5432/qct \
      -e ENVIRONMENT=prod \
      -e AUTH_FAKE_USER=demo_user \
+     -e LOG_LEVEL=INFO \
+     -e READY_CHECK_DB=true \
+     -e WEB_CONCURRENCY=2 \
+     -e GUNICORN_TIMEOUT=60 \
      -v /data/qct/images:/app/images \
      qct-dashboard:latest
    ```
@@ -103,6 +120,11 @@ Config base en `app/core/config.py`:
 - Para datos reales, reemplazar el pipeline de ingesta y desactivar placeholders.
 - Configurar CORS y autenticacion real si se expone publicamente.
 - Escalar Uvicorn/Gunicorn con multiples workers en host con CPU suficiente.
+
+### Healthchecks
+
+- `/_healthz`: responde `{"status":"ok"}` si la app esta viva.
+- `/_readyz`: responde `{"status":"ok"}` si la app esta lista (opcionalmente valida DB).
 
 ## Quickstart
 

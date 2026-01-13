@@ -17,6 +17,10 @@ services:
       DATABASE_URL: postgresql+psycopg2://qct:qct@postgres:5432/qct
       ENVIRONMENT: prod
       AUTH_FAKE_USER: demo_user
+      LOG_LEVEL: INFO
+      READY_CHECK_DB: "true"
+      WEB_CONCURRENCY: 2
+      GUNICORN_TIMEOUT: 60
     depends_on:
       - postgres
     ports:
