@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db
 from app.schemas.overview import OverviewResponse
 from app.services.provider import get_provider
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 templates = Jinja2Templates(directory="app/templates")
 

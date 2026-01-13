@@ -2,6 +2,12 @@
 
 Read-only dashboard for simulated qCT outputs.
 
+## Modo demo interno (intranet)
+
+- Autenticacion interna simple con formulario y sesion (usuarios por env `AUTH_USERS`).
+- Datos simulados; no hay pipeline real ni integracion Orthanc.
+- No expuesto a Internet publica; solo red interna clinica.
+
 ## Descripcion general
 
 La app es un dashboard web construido con FastAPI + Jinja2 que presenta resultados simulados de estudios de imagen. El flujo principal es:
@@ -70,7 +76,13 @@ Config base en `app/core/config.py`:
 - `DATABASE_URL`: URL de PostgreSQL.
 - `ENVIRONMENT`: entorno (dev/demo/prod).
 - `AUTH_FAKE_USER`: usuario demo para auditoria.
+- `AUTH_USERS`: credenciales internas (formato `user:pass[:display[:role]]`, CSV).
+- `AUTH_REALM`: (legacy) realm para HTTP Basic, no se usa con login interno.
+- `AUTH_SESSION_SECRET`: secreto para firmar la sesion.
+- `AUTH_SESSION_COOKIE`: nombre de cookie de sesion.
+- `AUTH_SESSION_MAX_AGE`: TTL de sesion en segundos.
 - `DATA_SOURCE`: origen de datos (`mock` u `orthanc`).
+- `MOCK_DATA`: fuerza modo simulado (debe ser `true` en este build).
 - `ALLOW_PHI`: permitir datos de paciente reales (default `false`).
 - `ORTHANC_URL`: base URL de Orthanc (default `http://localhost:8042`).
 - `ORTHANC_USERNAME`: usuario de Orthanc (opcional).
@@ -128,6 +140,34 @@ Config base en `app/core/config.py`:
 - `/_healthz`: responde `{"status":"ok"}` si la app esta viva.
 - `/_readyz`: responde `{"status":"ok"}` si la app esta lista (opcionalmente valida DB).
 
+## Despliegue interno (prod-internal)
+
+Este modo aplica TLS interno (self-signed), headers y rate limiting via Nginx, y protege Grafana/Prometheus.
+
+1. Generar certificado self-signed (ejemplo):
+   ```bash
+   openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
+     -keyout nginx/ssl/qct.key -out nginx/ssl/qct.crt \
+     -subj "/CN=qct-dashboard"
+   ```
+2. Definir variables en `.env`:
+   - `AUTH_USERS` (cambia credenciales por defecto).
+   - `GRAFANA_ADMIN_USER` y `GRAFANA_ADMIN_PASSWORD`.
+3. Levantar:
+   ```bash
+   docker-compose -f docker-compose.prod-internal.yml --env-file .env up -d --build
+   ```
+
+Acceso:
+- App: `https://<host>`
+- Grafana/Prometheus: solo en localhost (`127.0.0.1`), no expuesto a la red.
+
+## No es
+
+- No es un producto clinico real.
+- No integra Orthanc ni pipelines reales.
+- No esta pensado para Internet publica.
+
 ## Quickstart
 
 1. Start PostgreSQL:
@@ -158,6 +198,6 @@ docker-compose up -d --build
 ```
 
 - Prometheus: http://localhost:9090 (job `qct-dashboard`)
-- Grafana: http://localhost:3000 (admin/admin)
+- Grafana: http://localhost:3000 (credenciales via env)
 
 > Cambia las credenciales de Grafana antes de exponerlo.

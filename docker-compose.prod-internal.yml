@@ -6,35 +6,51 @@ services:
       POSTGRES_USER: qct
       POSTGRES_PASSWORD: qct
       POSTGRES_DB: qct
-    ports:
-      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
   web:
     build: .
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+psycopg2://qct:qct@postgres:5432/qct
       ENVIRONMENT: prod
-      AUTH_FAKE_USER: demo_user
-      AUTH_USERS: demo:demo:Demo Viewer:viewer
-      AUTH_REALM: qct-dashboard
-      AUTH_SESSION_SECRET: change-me
-      AUTH_SESSION_COOKIE: qct_session
-      AUTH_SESSION_MAX_AGE: 28800
+      AUTH_USERS: ${AUTH_USERS:-demo:demo:Demo Viewer:viewer}
+      AUTH_REALM: ${AUTH_REALM:-qct-dashboard}
+      AUTH_SESSION_SECRET: ${AUTH_SESSION_SECRET}
+      AUTH_SESSION_COOKIE: ${AUTH_SESSION_COOKIE:-qct_session}
+      AUTH_SESSION_MAX_AGE: ${AUTH_SESSION_MAX_AGE:-28800}
+      MOCK_DATA: ${MOCK_DATA:-true}
       LOG_LEVEL: INFO
       READY_CHECK_DB: "true"
       METRICS_ENABLED: "true"
       METRICS_PATH: /metrics
-      MOCK_DATA: "true"
       WEB_CONCURRENCY: 2
       GUNICORN_TIMEOUT: 60
     depends_on:
       - postgres
-    ports:
-      - "8000:8000"
     volumes:
       - ./images:/app/images
+    networks:
+      - internal
+
+  nginx:
+    image: nginx:1.27
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - web
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/errors:/usr/share/nginx/html/errors:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    networks:
+      - internal
+
   prometheus:
     image: prom/prometheus:v2.54.1
     restart: unless-stopped
@@ -44,23 +60,33 @@ services:
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
-    ports:
-      - "9090:9090"
     depends_on:
       - web
+    networks:
+      - internal
+    ports:
+      - "127.0.0.1:9090:9090"
+
   grafana:
     image: grafana/grafana:10.4.6
     restart: unless-stopped
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: "false"
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
+    networks:
+      - internal
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+networks:
+  internal:
+    driver: bridge
+
 volumes:
   postgres_data:
   prometheus_data:

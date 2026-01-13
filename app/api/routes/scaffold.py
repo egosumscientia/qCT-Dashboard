@@ -4,11 +4,13 @@ from math import ceil
 from urllib.parse import urlencode
 
 from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db
+from app.core.security import authenticate_credentials, clear_session_user, ensure_db_user, set_session_user
 from app.services.provider import get_provider
 
 router = APIRouter()
@@ -16,7 +18,7 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
-@router.get("/followups", response_class=HTMLResponse)
+@router.get("/followups", response_class=HTMLResponse, dependencies=[Depends(get_current_user)])
 def followups_page(
     request: Request,
     page: int = 1,
@@ -49,7 +51,7 @@ def followups_page(
     )
 
 
-@router.get("/ingestion", response_class=HTMLResponse)
+@router.get("/ingestion", response_class=HTMLResponse, dependencies=[Depends(get_current_user)])
 def ingestion_page(
     request: Request,
     page: int = 1,
@@ -80,3 +82,40 @@ def ingestion_page(
             "search_query": q or "",
         },
     )
+
+
+@router.get("/login", response_class=HTMLResponse, include_in_schema=False)
+def login_page(request: Request, error: str | None = None):
+    return templates.TemplateResponse(
+        "login.html",
+        {
+            "request": request,
+            "error": error,
+        },
+    )
+
+
+@router.post("/login", include_in_schema=False)
+async def login_action(request: Request, db: Session = Depends(get_db)):
+    form = await request.form()
+    username = (form.get("username") or "").strip()
+    password = (form.get("password") or "").strip()
+    auth_user = authenticate_credentials(username, password)
+    if not auth_user:
+        return templates.TemplateResponse(
+            "login.html",
+            {
+                "request": request,
+                "error": "Credenciales invalidas.",
+            },
+            status_code=401,
+        )
+    ensure_db_user(db, auth_user)
+    set_session_user(request, auth_user)
+    return RedirectResponse(url="/", status_code=303)
+
+
+@router.get("/logout", include_in_schema=False)
+def logout(request: Request) -> RedirectResponse:
+    clear_session_user(request)
+    return RedirectResponse(url="/login", status_code=303)

@@ -7,16 +7,14 @@ from urllib.parse import urlencode
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
-from app.core.security import get_current_user
+from app.api.deps import get_current_user, get_db
 from app.db.models import AccessAudit, User
 from app.schemas.study import StudyDetail, StudyListItem
 from app.services.provider import get_provider
 
-router = APIRouter(prefix="/studies")
+router = APIRouter(prefix="/studies", dependencies=[Depends(get_current_user)])
 
 templates = Jinja2Templates(directory="app/templates")
 
@@ -91,24 +89,22 @@ def study_detail_page(
     request: Request,
     study_id: str,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     provider = get_provider()
     detail = provider.get_study_detail(db, study_id)
     if not detail:
         raise HTTPException(status_code=404, detail="Study not found")
 
-    user = get_current_user()
-    db_user = db.execute(select(User).where(User.username == user.username)).scalar_one_or_none()
-    if db_user:
-        audit = AccessAudit(
-            user_id=db_user.id,
-            study_id=detail["id"],
-            action="view",
-            ip_address=request.client.host if request.client else "unknown",
-            accessed_at=datetime.utcnow(),
-        )
-        db.add(audit)
-        db.commit()
+    audit = AccessAudit(
+        user_id=current_user.id,
+        study_id=detail["id"],
+        action="view",
+        ip_address=request.client.host if request.client else "unknown",
+        accessed_at=datetime.utcnow(),
+    )
+    db.add(audit)
+    db.commit()
 
     return templates.TemplateResponse(
         "study_detail.html",

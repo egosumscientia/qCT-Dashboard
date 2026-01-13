@@ -259,8 +259,6 @@ def main() -> None:
                 )
                 db.add(log)
 
-                studies.append(study)
-
         db.flush()
 
         for patient in patients:

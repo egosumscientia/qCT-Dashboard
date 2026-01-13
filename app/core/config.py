@@ -13,7 +13,13 @@ class Settings(BaseSettings):
     environment: Literal["dev", "demo", "prod"] = "dev"
     database_url: str = "postgresql+psycopg2://qct:qct@localhost:5432/qct"
     auth_fake_user: str = "demo_user"
+    auth_users: str = "demo:demo:Demo Viewer:viewer"
+    auth_realm: str = "qct-dashboard"
+    auth_session_secret: str = "change-me"
+    auth_session_cookie: str = "qct_session"
+    auth_session_max_age: int = 60 * 60 * 8
     data_source: Literal["mock", "orthanc"] = "mock"
+    mock_data: bool = True
     allow_phi: bool = False
     orthanc_url: str = "http://localhost:8042"
     orthanc_username: str = ""

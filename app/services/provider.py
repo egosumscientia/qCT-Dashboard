@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import logging
 from typing import Protocol
 
 from sqlalchemy.orm import Session
@@ -234,6 +235,24 @@ class OrthancProvider:
 
 
 def get_provider() -> DataProvider:
-    if settings.data_source.lower() == "orthanc":
+    global _mock_notice_emitted
+    source = settings.data_source.lower()
+    if source == "orthanc":
+        if not _mock_notice_emitted:
+            if settings.mock_data:
+                logger.warning(
+                    "DATA_SOURCE=orthanc is configured as MOCK; no real Orthanc integration is enabled."
+                )
+            else:
+                logger.error(
+                    "DATA_SOURCE=orthanc requires MOCK_DATA=true in this build; "
+                    "no real Orthanc integration exists."
+                )
+            _mock_notice_emitted = True
         return OrthancProvider()
+    if settings.mock_data and not _mock_notice_emitted:
+        logger.info("MOCK_DATA is enabled; serving simulated data.")
+        _mock_notice_emitted = True
     return MockProvider()
+logger = logging.getLogger("app.provider")
+_mock_notice_emitted = False

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - qCT Dashboard</title>
+  <link rel="stylesheet" href="/static/css/fonts.css?v=1" />
+  <link rel="stylesheet" href="/static/css/styles.css?v=1" />
+</head>
+<body class="login-body">
+  <main class="login-container">
+    <section class="login-card">
+      <h1>Ingreso interno</h1>
+      <p class="subtitle">Acceso para personal clinico autorizado.</p>
+      {% if error %}
+      <div class="login-error">{{ error }}</div>
+      {% endif %}
+      <form method="post" action="/login" class="login-form">
+        <label>
+          Usuario
+          <input type="text" name="username" autocomplete="username" required />
+        </label>
+        <label>
+          Contraseña
+          <input type="password" name="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit" class="btn primary">Entrar</button>
+      </form>
+      <p class="login-note">Autenticacion interna (demo/intranet). No usar en Internet publica.</p>
+    </section>
+  </main>
+</body>
+</html>
