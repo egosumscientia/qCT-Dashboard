@@ -31,57 +31,67 @@
     </div>
   </div>
   <div class="panel summary-panel">
-    <div class="summary-header">
-      <div>
-        <h2>qCT Summary</h2>
-        <p class="summary-caption">Automated metrics for this study.</p>
-      </div>
+    <div>
+      <h2>qCT Summary</h2>
+      <p class="summary-caption">Automated metrics for this study.</p>
+    </div>
+    <div>
+      {% if study.summary.lung_rads %}
+      <span class="pill risk-{{ study.summary.overall_risk }}">Lung-RADS {{ study.summary.lung_rads }}</span>
+      {% endif %}
       <span class="pill risk-{{ study.summary.overall_risk }}">Risk {{ study.summary.overall_risk }}</span>
     </div>
-    <div class="summary-grid">
-      <div class="summary-metric">
-        <div class="summary-label">Volume Total</div>
-        <div class="summary-value">
-          <span class="summary-number">{{ study.summary.volume_total_mm3 }}</span>
-          <span class="summary-unit">mm3</span>
-        </div>
-      </div>
-      <div class="summary-metric">
-        <div class="summary-label">Mean Diameter</div>
-        <div class="summary-value">
-          <span class="summary-number">{{ study.summary.mean_diameter_mm }}</span>
-          <span class="summary-unit">mm</span>
-        </div>
-      </div>
-      <div class="summary-metric">
-        <div class="summary-label">VDT</div>
-        <div class="summary-value">
-          <span class="summary-number">{{ study.summary.vdt_days }}</span>
-          <span class="summary-unit">days</span>
-        </div>
-      </div>
-      <div class="summary-metric">
-        <div class="summary-label">Nodule Count</div>
-        <div class="summary-value">
-          <span class="summary-number">{{ study.nodule_count }}</span>
-          <span class="summary-unit">nodules</span>
-        </div>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-metric">
+      <div class="summary-label">Volume Total</div>
+      <div class="summary-value">
+        <span class="summary-number">{{ study.summary.volume_total_mm3 }}</span>
+        <span class="summary-unit">mm3</span>
       </div>
     </div>
-    <div class="summary-notes">
-      <div class="summary-label">Notes</div>
-      <p>{{ study.summary.notes or "" }}</p>
-    </div>
-    <div class="summary-footer">
-      <div class="summary-meta">
-        <span>Study ID</span>
-        <strong>{{ study.study_uid }}</strong>
-      </div>
-      <div class="summary-meta">
-        <span>Status</span>
-        <span class="pill {{ study.status }}">{{ study.status }}</span>
+    <div class="summary-metric">
+      <div class="summary-label">Mean Diameter</div>
+      <div class="summary-value">
+        <span class="summary-number">{{ study.summary.mean_diameter_mm }}</span>
+        <span class="summary-unit">mm</span>
       </div>
     </div>
+    <div class="summary-metric">
+      <div class="summary-label">VDT</div>
+      <div class="summary-value">
+        <span class="summary-number">{{ study.summary.vdt_days }}</span>
+        <span class="summary-unit">days</span>
+      </div>
+    </div>
+    <div class="summary-metric">
+      <div class="summary-label">Nodule Count</div>
+      <div class="summary-value">
+        <span class="summary-number">{{ study.nodule_count }}</span>
+        <span class="summary-unit">nodules</span>
+      </div>
+    </div>
+  </div>
+  <div class="summary-notes">
+    <div class="summary-label">Notes</div>
+    <p>{{ study.summary.notes or "" }}</p>
+  </div>
+  <div class="summary-footer">
+    <div class="summary-meta">
+      <span>Study ID</span>
+      <strong>{{ study.study_uid }}</strong>
+    </div>
+    <div class="summary-meta">
+      <span>Status</span>
+      <span class="pill {{ study.status }}">{{ study.status }}</span>
+    </div>
+    {% if study.summary.algo_version %}
+    <div class="summary-meta">
+      <span>Version</span>
+      <strong>{{ study.summary.algo_version }}</strong>
+    </div>
+    {% endif %}
+  </div>
   </div>
 </section>
 
@@ -92,6 +102,7 @@
       <tr>
         <th>Nodule ID</th>
         <th>Location</th>
+        <th>Texture</th>
         <th>Volume (mm3)</th>
         <th>Diameter (mm)</th>
         <th>VDT (days)</th>
@@ -103,6 +114,7 @@
       <tr>
         <td>{{ nodule.nodule_uid }}</td>
         <td>{{ nodule.location }}</td>
+        <td>{{ nodule.texture or '-' }}</td>
         <td>{{ nodule.volume_mm3 }}</td>
         <td>{{ nodule.diameter_mm }}</td>
         <td>{{ nodule.vdt_days }}</td>

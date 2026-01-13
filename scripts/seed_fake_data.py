@@ -193,6 +193,11 @@ def main() -> None:
                 )
                 db.add(image)
 
+                studies.append(study)
+
+                LUNG_RADS_OPTS = ["2", "3", "4A", "4B"]
+                TEXTURE_OPTS = ["Solid", "Part-Solid", "Ground Glass"]
+
                 nodules = []
                 nodule_count = random.randint(1, 4)
                 for n_idx in range(nodule_count):
@@ -209,6 +214,7 @@ def main() -> None:
                             diameter_mm=round(diameter, 2),
                             vdt_days=vdt_days,
                             risk=risk,
+                            texture=random.choice(TEXTURE_OPTS),
                             is_followup=s_idx > 0,
                         )
                     )
@@ -219,6 +225,13 @@ def main() -> None:
                 mean_diameter = sum(n.diameter_mm for n in nodules) / len(nodules)
                 mean_vdt = int(sum(n.vdt_days for n in nodules) / len(nodules))
                 overall_risk = max([n.risk for n in nodules], key=RISK_LEVELS.index)
+                
+                # Lung-RADS logic (simplified)
+                lrads = "2"
+                if overall_risk == "high":
+                    lrads = random.choice(["4A", "4B"])
+                elif overall_risk == "medium":
+                    lrads = "3"
 
                 summary = QCTSummary(
                     study_id=study.id,
@@ -226,6 +239,8 @@ def main() -> None:
                     mean_diameter_mm=round(mean_diameter, 2),
                     vdt_days=mean_vdt,
                     overall_risk=overall_risk,
+                    lung_rads=lrads,
+                    algo_version=f"qCT v{random.randint(1,2)}.{random.randint(0,5)}",
                     notes="Simulated AI summary for demo use only.",
                 )
                 db.add(summary)

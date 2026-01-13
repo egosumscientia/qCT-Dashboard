@@ -114,6 +114,8 @@ class QCTSummary(Base, TimestampMixin):
     volume_total_mm3: Mapped[float] = mapped_column(Float, nullable=False)
     mean_diameter_mm: Mapped[float] = mapped_column(Float, nullable=False)
     vdt_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    lung_rads: Mapped[str] = mapped_column(String(10), nullable=True)
+    algo_version: Mapped[str] = mapped_column(String(32), nullable=True)
     overall_risk: Mapped[str] = mapped_column(String(32), nullable=False)
     notes: Mapped[str] = mapped_column(Text, nullable=True)
 
@@ -130,6 +132,7 @@ class QCTNodule(Base, TimestampMixin):
     volume_mm3: Mapped[float] = mapped_column(Float, nullable=False)
     diameter_mm: Mapped[float] = mapped_column(Float, nullable=False)
     vdt_days: Mapped[int] = mapped_column(Integer, nullable=False)
+    texture: Mapped[str] = mapped_column(String(32), nullable=True)
     risk: Mapped[str] = mapped_column(String(32), nullable=False)
     is_followup: Mapped[bool] = mapped_column(Boolean, default=False)
 
