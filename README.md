@@ -129,19 +129,19 @@ Config base en `app/core/config.py`:
 ## Quickstart
 
 1. Start PostgreSQL:
-   ```bash
-   docker-compose up -d
+   ```pwsh
+    docker-compose up -d --build
    ```
 2. Create schema:
-   ```bash
-   alembic upgrade head
+   ```pwsh
+   docker-compose exec web alembic upgrade head
    ```
 3. Seed demo data:
-   ```bash
-   python scripts/seed_fake_data.py
+   ```pwsh
+   docker-compose run --rm web python scripts/seed_fake_data.py
    ```
 4. Run the app:
-   ```bash
+   ```pwsh
    uvicorn app.main:app --reload
    ```
 

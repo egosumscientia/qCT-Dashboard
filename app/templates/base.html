@@ -22,7 +22,27 @@
       <a href="/ingestion" class="nav-link">Ingestion</a>
     </nav>
   </header>
-  <div class="banner">AI-assisted - simulated data - not for clinical use</div>
+  <section class="meta-bar" aria-label="Meta indicators">
+    <div class="meta-item">
+      <span class="meta-label">Last refreshed</span>
+      <strong id="metaRefresh">--</strong>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Active filters</span>
+      <strong id="metaFilters">0</strong>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">Date range</span>
+      <strong id="metaDateRange">All time</strong>
+    </div>
+  </section>
+  <div
+    class="banner"
+    data-banner-enabled="true"
+    data-banner-text="AI-assisted - simulated data - not for clinical use"
+  >
+    AI-assisted - simulated data - not for clinical use
+  </div>
   <main class="container">
     {% block content %}{% endblock %}
   </main>

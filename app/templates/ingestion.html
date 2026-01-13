@@ -108,7 +108,16 @@
     </div>
   </div>
   {% else %}
-  <p class="empty-state">No ingestion logs available yet.</p>
+  <div class="empty-state">
+    <div class="empty-icon">(i)</div>
+    <div>
+      <strong>No ingestion logs available.</strong>
+      <p class="muted">Try adjusting the search query or clear it to see all results.</p>
+    </div>
+    {% if search_query %}
+    <a class="empty-action" href="/ingestion">Clear search</a>
+    {% endif %}
+  </div>
   {% endif %}
 </section>
 {% endblock %}

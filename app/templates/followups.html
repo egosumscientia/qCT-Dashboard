@@ -112,7 +112,16 @@
     </div>
   </div>
   {% else %}
-  <p class="empty-state">No follow-up comparisons available yet.</p>
+  <div class="empty-state">
+    <div class="empty-icon">(i)</div>
+    <div>
+      <strong>No follow-up comparisons available.</strong>
+      <p class="muted">Try adjusting the search query or clear it to see all results.</p>
+    </div>
+    {% if search_query %}
+    <a class="empty-action" href="/followups">Clear search</a>
+    {% endif %}
+  </div>
   {% endif %}
 </section>
 {% endblock %}

@@ -86,6 +86,14 @@ h1, h2, h3 {
   letter-spacing: 0.5px;
 }
 
+.banner.is-hidden {
+  display: none;
+}
+
+.is-hidden {
+  display: none !important;
+}
+
 .container {
   padding: 32px 40px 56px;
   display: flex;
@@ -110,6 +118,30 @@ h1, h2, h3 {
   background: rgba(255, 255, 255, 0.7);
   border-radius: 14px;
   font-size: 13px;
+}
+
+.meta-bar {
+  display: flex;
+  gap: 18px;
+  padding: 0 40px 16px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-size: 10px;
 }
 
 .kpi-grid {
@@ -145,6 +177,34 @@ h1, h2, h3 {
   padding: 22px;
   border-radius: 18px;
   box-shadow: var(--shadow);
+}
+
+.panel-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.quality-summary {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.quality-item {
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quality-item strong {
+  font-size: 16px;
 }
 
 .panel.placeholder {
@@ -215,6 +275,53 @@ h1, h2, h3 {
   background: var(--accent-2);
   color: #fff;
   border: none;
+}
+
+.quick-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 12px 18px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 16px;
+}
+
+.quick-filters-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.quick-filters-label {
+  font-size: 12px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.quick-filter {
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  border: none;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 13px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.quick-filter.active {
+  background: var(--accent-2);
+  color: #fff;
+}
+
+.quick-filter.export {
+  background: var(--accent);
+  color: #fff;
 }
 
 .table {
@@ -468,6 +575,59 @@ h1, h2, h3 {
   font-size: 14px;
 }
 
+.glossary {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+
+.glossary-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tooltip {
+  position: relative;
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: 140%;
+  transform: translateX(-50%);
+  background: #0f172a;
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  width: max-content;
+  max-width: 240px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.tooltip:focus::after,
+.tooltip:hover::after {
+  opacity: 1;
+}
+
 .summary-footer {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -580,6 +740,30 @@ h1, h2, h3 {
 .empty-state {
   color: var(--muted);
   font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.04);
+  border-radius: 14px;
+}
+
+.empty-icon {
+  font-size: 22px;
+}
+
+.empty-action {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--accent-2);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 12px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 .pagination {
@@ -652,8 +836,17 @@ h1, h2, h3 {
     gap: 16px;
   }
 
+  .meta-bar {
+    padding: 0 24px 16px;
+  }
+
   .container {
     padding: 24px;
+  }
+
+  .panel-meta {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .summary-grid {

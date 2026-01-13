@@ -131,8 +131,195 @@ const initCharts = () => {
   }
 };
 
+const updateMetaIndicators = (uiState = {}) => {
+  const metaRefresh = document.getElementById('metaRefresh');
+  const metaFilters = document.getElementById('metaFilters');
+  const metaDateRange = document.getElementById('metaDateRange');
+  if (metaRefresh) {
+    metaRefresh.textContent = new Date().toLocaleString();
+  }
+  const params = new URLSearchParams(window.location.search);
+  const filterKeys = ['status', 'risk', 'q', 'start_date', 'end_date'];
+  let activeFilters = 0;
+  filterKeys.forEach((key) => {
+    const value = params.get(key);
+    if (value) {
+      activeFilters += 1;
+    }
+  });
+  if (uiState.quickLast30) {
+    activeFilters += 1;
+  }
+  if (metaFilters) {
+    metaFilters.textContent = String(activeFilters);
+  }
+  if (metaDateRange) {
+    const start = params.get('start_date');
+    const end = params.get('end_date');
+    if (start || end) {
+      metaDateRange.textContent = `${start || '...'} to ${end || '...'}`;
+    } else if (uiState.quickLast30) {
+      metaDateRange.textContent = 'Last 30 days (page)';
+    } else {
+      metaDateRange.textContent = 'All time';
+    }
+  }
+};
+
+const updateBanner = () => {
+  const banner = document.querySelector('.banner');
+  if (!banner) {
+    return;
+  }
+  const isEnabled = banner.dataset.bannerEnabled !== 'false';
+  if (!isEnabled) {
+    banner.classList.add('is-hidden');
+    return;
+  }
+  const text = banner.dataset.bannerText;
+  if (text) {
+    banner.textContent = text;
+  }
+};
+
+const updateQualitySummary = () => {
+  const table = document.querySelector('table.table');
+  if (!table) {
+    return;
+  }
+  const rows = Array.from(table.querySelectorAll('tbody tr[data-study-date]')).filter(
+    (row) => row.style.display !== 'none'
+  );
+  const total = rows.length;
+  const countImage = rows.filter((row) => row.dataset.hasImage === 'true').length;
+  const countSummary = rows.filter((row) => row.dataset.hasSummary === 'true').length;
+  const format = (count) => {
+    if (!total) {
+      return '--';
+    }
+    const percent = Math.round((count / total) * 100);
+    return `${percent}% (${count}/${total})`;
+  };
+  const imageEl = document.getElementById('qualityImage');
+  const summaryEl = document.getElementById('qualitySummary');
+  if (imageEl) {
+    imageEl.textContent = format(countImage);
+  }
+  if (summaryEl) {
+    summaryEl.textContent = format(countSummary);
+  }
+};
+
+const initStudyQuickFilters = () => {
+  const last30Button = document.querySelector('[data-quick-filter="last30"]');
+  if (!last30Button) {
+    return;
+  }
+  const clientEmptyState = document.getElementById('clientEmptyState');
+  const clearQuickFilter = document.querySelector('[data-clear-quick-filter]');
+  const uiState = {
+    quickLast30: false,
+  };
+
+  const parseDate = (value) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  };
+
+  const applyLast30Filter = () => {
+    const table = document.querySelector('table.table');
+    if (!table) {
+      return;
+    }
+    // Client-side preset: filters only the currently loaded page.
+    const rows = Array.from(table.querySelectorAll('tbody tr[data-study-date]'));
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    let visibleCount = 0;
+    rows.forEach((row) => {
+      const dateValue = parseDate(row.dataset.studyDate);
+      const isVisible = !uiState.quickLast30 || !dateValue || dateValue >= cutoff;
+      row.style.display = isVisible ? '' : 'none';
+      if (isVisible) {
+        visibleCount += 1;
+      }
+    });
+    if (clientEmptyState) {
+      clientEmptyState.classList.toggle(
+        'is-hidden',
+        !uiState.quickLast30 || visibleCount > 0
+      );
+    }
+    updateQualitySummary();
+    updateMetaIndicators(uiState);
+  };
+
+  last30Button.addEventListener('click', () => {
+    uiState.quickLast30 = !uiState.quickLast30;
+    last30Button.classList.toggle('active', uiState.quickLast30);
+    applyLast30Filter();
+  });
+
+  if (clearQuickFilter) {
+    clearQuickFilter.addEventListener('click', () => {
+      uiState.quickLast30 = false;
+      last30Button.classList.remove('active');
+      applyLast30Filter();
+    });
+  }
+
+  applyLast30Filter();
+};
+
+const initCsvExport = () => {
+  const exportButton = document.querySelector('[data-export="studies"]');
+  if (!exportButton) {
+    return;
+  }
+  exportButton.addEventListener('click', () => {
+    const table = document.querySelector('table.table');
+    if (!table) {
+      return;
+    }
+    const headers = Array.from(table.querySelectorAll('thead th')).map((th) =>
+      th.textContent.trim()
+    );
+    const rows = Array.from(table.querySelectorAll('tbody tr'))
+      .filter((row) => row.style.display !== 'none')
+      .map((row) =>
+        Array.from(row.querySelectorAll('td')).map((cell) =>
+          cell.textContent.trim().replace(/\s+/g, ' ')
+        )
+      );
+    const escapeCell = (value) => `"${value.replace(/"/g, '""')}"`;
+    const csv = [headers, ...rows].map((row) => row.map(escapeCell).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const timestamp = new Date().toISOString().slice(0, 10);
+    link.href = url;
+    link.download = `studies_export_${timestamp}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  });
+};
+
+const initUiEnhancements = () => {
+  updateBanner();
+  updateMetaIndicators();
+  updateQualitySummary();
+  initStudyQuickFilters();
+  initCsvExport();
+};
+
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initCharts);
+  document.addEventListener('DOMContentLoaded', () => {
+    initCharts();
+    initUiEnhancements();
+  });
 } else {
   initCharts();
+  initUiEnhancements();
 }

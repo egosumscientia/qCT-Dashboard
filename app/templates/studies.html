@@ -46,7 +46,35 @@
   </form>
 </section>
 
+<section class="quick-filters" aria-label="Quick filters">
+  <div class="quick-filters-group">
+    <span class="quick-filters-label">Quick filters</span>
+    <a class="quick-filter {% if selected_risk == 'high' %}active{% endif %}" href="/studies?risk=high&per_page={{ pagination.per_page }}">High risk</a>
+    <a class="quick-filter {% if selected_status == 'ready' %}active{% endif %}" href="/studies?status=ready&per_page={{ pagination.per_page }}">Ready</a>
+    <button type="button" class="quick-filter" data-quick-filter="last30">Last 30 days</button>
+  </div>
+  <div class="quick-filters-actions">
+    <button type="button" class="quick-filter export" data-export="studies">Export CSV</button>
+  </div>
+</section>
+
 <section class="panel">
+  <div class="panel-meta">
+    <div>
+      <h2>Study Results</h2>
+      <p class="subtitle">Estimated data quality for the current page.</p>
+    </div>
+    <div class="quality-summary" aria-live="polite">
+      <div class="quality-item">
+        <span>With image</span>
+        <strong id="qualityImage">--</strong>
+      </div>
+      <div class="quality-item">
+        <span>With summary</span>
+        <strong id="qualitySummary">--</strong>
+      </div>
+    </div>
+  </div>
   <table class="table">
     <thead>
       <tr>
@@ -60,7 +88,9 @@
     </thead>
     <tbody>
       {% for study in studies %}
-      <tr>
+      {% set has_summary = study.status in ["ready", "review"] %}
+      {% set has_image = study.status != "processing" %}
+      <tr data-study-date="{{ study.study_date }}" data-status="{{ study.status }}" data-has-image="{{ 'true' if has_image else 'false' }}" data-has-summary="{{ 'true' if has_summary else 'false' }}">
         <td><a href="/studies/{{ study.id }}">{{ study.study_uid }}</a></td>
         <td>{{ study.patient_uid }}</td>
         <td>{{ study.study_date }}</td>
@@ -70,11 +100,30 @@
       </tr>
       {% else %}
       <tr>
-        <td colspan="6">No studies available.</td>
+        <td colspan="6">
+          <div class="empty-state">
+            <div class="empty-icon">(i)</div>
+            <div>
+              <strong>No studies match the current filters.</strong>
+              <p class="muted">Try adjusting filters or clearing your search.</p>
+            </div>
+            {% if selected_status or selected_risk or search_query %}
+            <a class="empty-action" href="/studies">Clear filters</a>
+            {% endif %}
+          </div>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  <div class="empty-state is-hidden" id="clientEmptyState">
+    <div class="empty-icon">(i)</div>
+    <div>
+      <strong>No studies in the last 30 days on this page.</strong>
+      <p class="muted">Try clearing the quick filter or change the page.</p>
+    </div>
+    <button type="button" class="empty-action" data-clear-quick-filter>Clear quick filter</button>
+  </div>
   <div class="pagination">
     <div class="pagination-info">
       {% if pagination.total > 0 %}

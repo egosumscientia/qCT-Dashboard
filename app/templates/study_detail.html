@@ -34,6 +34,20 @@
     <div>
       <h2>qCT Summary</h2>
       <p class="summary-caption">Automated metrics for this study.</p>
+      <div class="glossary">
+        <span class="glossary-item">
+          Lung-RADS
+          <span class="tooltip" tabindex="0" data-tooltip="Lung-RADS: standardized lung cancer screening assessment categories.">ⓘ</span>
+        </span>
+        <span class="glossary-item">
+          Risk
+          <span class="tooltip" tabindex="0" data-tooltip="Risk: overall assessment derived from size, growth, and morphology.">ⓘ</span>
+        </span>
+        <span class="glossary-item">
+          VDT
+          <span class="tooltip" tabindex="0" data-tooltip="VDT: Volume Doubling Time in days; lower values indicate faster growth.">ⓘ</span>
+        </span>
+      </div>
     </div>
     <div>
       {% if study.summary.lung_rads %}
@@ -58,7 +72,10 @@
       </div>
     </div>
     <div class="summary-metric">
-      <div class="summary-label">VDT</div>
+      <div class="summary-label">
+        VDT
+        <span class="tooltip" tabindex="0" data-tooltip="Volume Doubling Time: estimated growth rate in days.">ⓘ</span>
+      </div>
       <div class="summary-value">
         <span class="summary-number">{{ study.summary.vdt_days }}</span>
         <span class="summary-unit">days</span>
