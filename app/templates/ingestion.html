@@ -2,29 +2,29 @@
 {% block content %}
 <section class="page-header">
   <div>
-    <h1>Ingestion Logs</h1>
-    <p class="subtitle">Scaffolded monitoring view for ingestion and processing events.</p>
+    <h1>Eventos de ingesta</h1>
+    <p class="subtitle">Vista informativa de eventos de ingesta y procesamiento.</p>
   </div>
 </section>
 
 <section class="panel">
   <div class="timeline-header">
     <div>
-      <h2>Processing Pipeline</h2>
-      <p class="subtitle">Latest ingestion and processing events across studies.</p>
+      <h2>Pipeline de procesamiento</h2>
+      <p class="subtitle">Eventos mas recientes por estudio.</p>
     </div>
     <form class="pagination-form" method="get">
       <label>
-        Search
+        Buscar
         <input
           type="search"
           name="q"
           value="{{ search_query }}"
-          placeholder="Patient, study ID, message"
+          placeholder="Paciente, study ID, mensaje"
         />
       </label>
       <label>
-        Per page
+        Por pagina
         <select name="per_page">
           {% for size in [10, 20, 50] %}
           <option value="{{ size }}" {% if pagination.per_page == size %}selected{% endif %}>{{ size }}</option>
@@ -32,41 +32,42 @@
         </select>
       </label>
       <input type="hidden" name="page" value="1" />
-      <button type="submit">Apply</button>
+      <button type="submit">Aplicar</button>
     </form>
   </div>
   {% if logs %}
   <div class="timeline">
     {% for log in logs %}
+    {% set log_label = "Completado" if log.status == "completed" else "En proceso" if log.status == "processing" else log.status %}
     <div class="timeline-item">
       <div class="timeline-date">
         <strong>{{ log.started_at }}</strong>
-        <span class="muted">{% if log.completed_at %}Done {{ log.completed_at }}{% else %}In progress{% endif %}</span>
+        <span class="muted">{% if log.completed_at %}Finalizado {{ log.completed_at }}{% else %}En proceso{% endif %}</span>
       </div>
       <div class="timeline-card">
         <div class="timeline-card-header">
           <div class="timeline-title">
             <strong>{{ log.anon_label }}</strong>
           </div>
-          <span class="pill {{ log.status }}">{{ log.status }}</span>
+          <span class="pill {{ log.status }}">{{ log_label }}</span>
         </div>
         <div class="timeline-meta">
           <div>
-            <span>Study</span>
+            <span>Estudio</span>
             <strong>{{ log.study_uid }}</strong>
           </div>
           <div>
-            <span>Site</span>
+            <span>Sitio</span>
             <strong>{{ log.site_name }}</strong>
           </div>
           <div>
-            <span>Message</span>
+            <span>Mensaje</span>
             <strong>{{ log.message }}</strong>
           </div>
         </div>
         <div class="timeline-links">
-          <a href="/studies/{{ log.study_id }}">View study</a>
-          <span class="muted">Status: {{ log.status }}</span>
+          <a href="/studies/{{ log.study_id }}">Ver estudio</a>
+          <span class="muted">Estado: {{ log_label }}</span>
         </div>
       </div>
     </div>
@@ -75,19 +76,19 @@
   <div class="pagination">
     <div class="pagination-info">
       {% if pagination.total > 0 %}
-      Showing {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total] | min }}
-      of {{ pagination.total }}
+      Mostrando {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total] | min }}
+      de {{ pagination.total }}
       {% else %}
-      No results
+      Sin resultados
       {% endif %}
     </div>
     <div class="pagination-controls">
       {% if pagination.page > 1 %}
-      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page - 1 }}">Previous</a>
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page - 1 }}">Anterior</a>
       {% else %}
-      <span class="pagination-link disabled">Previous</span>
+      <span class="pagination-link disabled">Anterior</span>
       {% endif %}
-      <span class="pagination-page">Page {{ pagination.page }} of {{ pagination.total_pages }}</span>
+      <span class="pagination-page">Pagina {{ pagination.page }} de {{ pagination.total_pages }}</span>
       <form class="pagination-jump" method="get">
         {% for key, value in request.query_params.items() %}
           {% if key != "page" %}
@@ -95,15 +96,15 @@
           {% endif %}
         {% endfor %}
         <label>
-          Go to
+          Ir a
           <input type="number" name="page" min="1" max="{{ pagination.total_pages }}" value="{{ pagination.page }}" />
         </label>
-        <button type="submit">Go</button>
+        <button type="submit">Ir</button>
       </form>
       {% if pagination.page < pagination.total_pages %}
-      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page + 1 }}">Next</a>
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page + 1 }}">Siguiente</a>
       {% else %}
-      <span class="pagination-link disabled">Next</span>
+      <span class="pagination-link disabled">Siguiente</span>
       {% endif %}
     </div>
   </div>
@@ -111,11 +112,11 @@
   <div class="empty-state">
     <div class="empty-icon">(i)</div>
     <div>
-      <strong>No ingestion logs available.</strong>
-      <p class="muted">Try adjusting the search query or clear it to see all results.</p>
+      <strong>No hay eventos de ingesta disponibles.</strong>
+      <p class="muted">Prueba ajustar la busqueda o limpiarla para ver resultados.</p>
     </div>
     {% if search_query %}
-    <a class="empty-action" href="/ingestion">Clear search</a>
+    <a class="empty-action" href="/ingestion">Limpiar busqueda</a>
     {% endif %}
   </div>
   {% endif %}

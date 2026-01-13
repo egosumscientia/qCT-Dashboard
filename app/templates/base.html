@@ -24,36 +24,36 @@
   <header class="top-bar">
     <a class="brand" href="/">
       <span class="brand-mark">qCT</span>
-      <span class="brand-sub">Imaging Results Viewer</span>
+      <span class="brand-sub">Visor de resultados</span>
     </a>
     <nav class="nav">
-      <a href="/" class="nav-link">Overview</a>
-      <a href="/studies" class="nav-link">Studies</a>
-      <a href="/followups" class="nav-link">Follow-ups</a>
-      <a href="/ingestion" class="nav-link">Ingestion</a>
-      <a href="/logout" class="nav-link">Logout</a>
+      <a href="/" class="nav-link">Resumen</a>
+      <a href="/studies" class="nav-link">Estudios</a>
+      <a href="/followups" class="nav-link">Seguimiento</a>
+      <a href="/ingestion" class="nav-link">Ingesta</a>
+      <a href="/logout" class="nav-link">Salir</a>
     </nav>
   </header>
   <section class="meta-bar" aria-label="Meta indicators">
     <div class="meta-item">
-      <span class="meta-label">Last refreshed</span>
+      <span class="meta-label">Actualizado</span>
       <strong id="metaRefresh">--</strong>
     </div>
     <div class="meta-item">
-      <span class="meta-label">Active filters</span>
+      <span class="meta-label">Filtros activos</span>
       <strong id="metaFilters">0</strong>
     </div>
     <div class="meta-item">
-      <span class="meta-label">Date range</span>
-      <strong id="metaDateRange">All time</strong>
+      <span class="meta-label">Rango de fechas</span>
+      <strong id="metaDateRange">Todo el periodo</strong>
     </div>
   </section>
   <div
     class="banner"
     data-banner-enabled="true"
-    data-banner-text="AI-assisted - simulated data - not for clinical use"
+    data-banner-text="Datos simulados. Uso informativo interno."
   >
-    AI-assisted - simulated data - not for clinical use
+    Datos simulados. Uso informativo interno.
   </div>
   <main class="container">
     {% block content %}{% endblock %}

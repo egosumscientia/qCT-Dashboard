@@ -2,41 +2,41 @@
 {% block content %}
 <section class="hero">
   <div>
-    <h1>qCT Overview</h1>
-    <p class="subtitle">Operational snapshot for simulated AI outputs across client sites.</p>
+    <h1>Resumen qCT</h1>
+    <p class="subtitle">Vista informativa con datos simulados por sitio.</p>
   </div>
-  <div class="hero-meta">Last refreshed: {{ (kpis and "now") or "" }}</div>
+  <div class="hero-meta">Actualizado: {{ (kpis and "ahora") or "" }}</div>
 </section>
 
 <section class="kpi-grid">
   <div class="kpi-card">
-    <h3>Total Patients</h3>
+    <h3>Total pacientes</h3>
     <p class="kpi-value">{{ kpis.total_patients }}</p>
   </div>
   <div class="kpi-card">
-    <h3>Total Studies</h3>
+    <h3>Total estudios</h3>
     <p class="kpi-value">{{ kpis.total_studies }}</p>
   </div>
   <div class="kpi-card">
-    <h3>Total Nodules</h3>
+    <h3>Total nodulos</h3>
     <p class="kpi-value">{{ kpis.total_nodules }}</p>
   </div>
   <div class="kpi-card alert">
-    <h3>High Risk</h3>
+    <h3>Riesgo alto (info)</h3>
     <p class="kpi-value">{{ kpis.high_risk }}</p>
   </div>
 </section>
 
 <section class="grid-2">
   <div class="panel chart-panel">
-    <h2>Risk Distribution</h2>
+    <h2>Distribucion de riesgo (informativo)</h2>
     <div class="chart-shell chart-shell--donut">
       <canvas id="riskChart" class="chart-canvas chart-donut"></canvas>
     </div>
     <div class="chart-fallback" id="riskFallback"></div>
   </div>
   <div class="panel chart-panel">
-    <h2>Average Volume Trend</h2>
+    <h2>Tendencia de volumen promedio (informativo)</h2>
     <div class="chart-shell">
       <canvas id="volumeChart" class="chart-canvas chart-line"></canvas>
     </div>

@@ -1,71 +1,119 @@
 {% extends "base.html" %}
 {% block content %}
+{% set status_label = "Listo" if study.status == "ready" else "En analisis" if study.status == "processing" else "Listo para revision" if study.status == "review" else study.status %}
+{% set risk_label = "Bajo" if study.overall_risk == "low" else "Medio" if study.overall_risk == "medium" else "Alto" if study.overall_risk == "high" else study.overall_risk %}
 <section class="page-header">
   <div>
-    <h1>Study Detail</h1>
-    <p class="subtitle">Patient {{ study.anon_label }}</p>
+    <h1>Detalle del estudio</h1>
+    <p class="subtitle">Paciente {{ study.anon_label }}</p>
   </div>
   <div class="meta">
     <span class="pill">{{ study.study_date }}</span>
-    <span class="pill {{ study.status }}">{{ study.status }}</span>
-    <span class="pill risk-{{ study.overall_risk }}">{{ study.overall_risk }}</span>
+    <span class="pill {{ study.status }}">{{ status_label }}</span>
+    <span class="pill risk-{{ study.overall_risk }}">{{ risk_label }}</span>
+    <button type="button" class="pill print-pill" id="printSummary">Imprimir resumen informativo</button>
+  </div>
+</section>
+
+<section class="info-grid">
+  <div class="panel info-card">
+    <h2>Contexto del paciente</h2>
+    <div class="info-list">
+      <div class="info-item">
+        <span class="info-label">Edad</span>
+        <span class="info-value">{{ study.get("age", "No disponible") }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Sexo</span>
+        <span class="info-value">{{ study.get("sex", "No disponible") }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Antecedentes relevantes</span>
+        <span class="info-value">{{ study.get("history", "No disponible (demo)") }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="panel info-card">
+    <h2>Contexto del estudio</h2>
+    <div class="info-list">
+      <div class="info-item">
+        <span class="info-label">Institucion / Sitio</span>
+        <span class="info-value">{{ study.get("site_name", "No disponible") }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Equipo / Modalidad</span>
+        <span class="info-value">{{ study.get("modality", "No disponible") }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Protocolo</span>
+        <span class="info-value">{{ study.get("protocol", "No disponible") }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Fecha</span>
+        <span class="info-value">{{ study.study_date }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Hora</span>
+        <span class="info-value">{{ study.get("study_time", "No disponible") }}</span>
+      </div>
+    </div>
   </div>
 </section>
 
 <section class="grid-2">
   <div class="panel image-panel">
     <div class="image-header">
-      <h2>CT Preview</h2>
+      <h2>Vista CT</h2>
       <label class="toggle">
         <input type="checkbox" id="overlayToggle" checked />
-        <span>Overlay</span>
+        <span>Superposicion</span>
       </label>
     </div>
     <div class="image-wrap">
       {% if study.image_path %}
       <img src="/images/{{ study.image_path }}" alt="CT placeholder" id="ctImage" />
       {% else %}
-      <div class="image-placeholder">No image available</div>
+      <div class="image-placeholder">No hay imagen disponible</div>
       {% endif %}
       <div class="overlay" id="overlayMask"></div>
     </div>
   </div>
   <div class="panel summary-panel">
     <div>
-      <h2>qCT Summary</h2>
-      <p class="summary-caption">Automated metrics for this study.</p>
+      <h2>Resumen qCT (informativo)</h2>
+      <p class="summary-caption">Metricas automatizadas para este estudio.</p>
       <div class="glossary">
         <span class="glossary-item">
-          Lung-RADS
-          <span class="tooltip" tabindex="0" data-tooltip="Lung-RADS: standardized lung cancer screening assessment categories.">ⓘ</span>
+          Lung-RADS (informativo)
+          <span class="tooltip" tabindex="0" data-tooltip="Lung-RADS: categorias informativas de evaluacion en tamizaje pulmonar.">ⓘ</span>
         </span>
         <span class="glossary-item">
-          Risk
-          <span class="tooltip" tabindex="0" data-tooltip="Risk: overall assessment derived from size, growth, and morphology.">ⓘ</span>
+          Riesgo estimado
+          <span class="tooltip" tabindex="0" data-tooltip="Riesgo: estimacion general basada en tamanio, crecimiento y morfologia.">ⓘ</span>
         </span>
         <span class="glossary-item">
           VDT
-          <span class="tooltip" tabindex="0" data-tooltip="VDT: Volume Doubling Time in days; lower values indicate faster growth.">ⓘ</span>
+          <span class="tooltip" tabindex="0" data-tooltip="VDT: tiempo de duplicacion de volumen en dias (estimado).">ⓘ</span>
         </span>
       </div>
     </div>
     <div>
       {% if study.summary.lung_rads %}
-      <span class="pill risk-{{ study.summary.overall_risk }}">Lung-RADS {{ study.summary.lung_rads }}</span>
+      <span class="pill risk-{{ study.summary.overall_risk }}">Lung-RADS {{ study.summary.lung_rads }} (info)</span>
       {% endif %}
-      <span class="pill risk-{{ study.summary.overall_risk }}">Risk {{ study.summary.overall_risk }}</span>
+      <span class="pill risk-{{ study.summary.overall_risk }}">Riesgo {{ risk_label }}</span>
     </div>
   </div>
   <div class="summary-grid">
     <div class="summary-metric">
-      <div class="summary-label">Volume Total</div>
+      <div class="summary-label">Volumen total</div>
       <div class="summary-value">
         <span class="summary-number">{{ study.summary.volume_total_mm3 }}</span>
         <span class="summary-unit">mm3</span>
       </div>
     </div>
     <div class="summary-metric">
-      <div class="summary-label">Mean Diameter</div>
+      <div class="summary-label">Diametro medio</div>
       <div class="summary-value">
         <span class="summary-number">{{ study.summary.mean_diameter_mm }}</span>
         <span class="summary-unit">mm</span>
@@ -74,15 +122,15 @@
     <div class="summary-metric">
       <div class="summary-label">
         VDT
-        <span class="tooltip" tabindex="0" data-tooltip="Volume Doubling Time: estimated growth rate in days.">ⓘ</span>
+        <span class="tooltip" tabindex="0" data-tooltip="VDT: tiempo de duplicacion de volumen en dias (estimado).">ⓘ</span>
       </div>
       <div class="summary-value">
         <span class="summary-number">{{ study.summary.vdt_days }}</span>
-        <span class="summary-unit">days</span>
+        <span class="summary-unit">dias</span>
       </div>
     </div>
     <div class="summary-metric">
-      <div class="summary-label">Nodule Count</div>
+      <div class="summary-label">Cantidad de nodulos</div>
       <div class="summary-value">
         <span class="summary-number">{{ study.nodule_count }}</span>
         <span class="summary-unit">nodules</span>
@@ -90,17 +138,17 @@
     </div>
   </div>
   <div class="summary-notes">
-    <div class="summary-label">Notes</div>
+    <div class="summary-label">Notas de sistema (demo)</div>
     <p>{{ study.summary.notes or "" }}</p>
   </div>
   <div class="summary-footer">
     <div class="summary-meta">
-      <span>Study ID</span>
+      <span>ID de estudio</span>
       <strong>{{ study.study_uid }}</strong>
     </div>
     <div class="summary-meta">
-      <span>Status</span>
-      <span class="pill {{ study.status }}">{{ study.status }}</span>
+      <span>Estado clinico</span>
+      <span class="pill {{ study.status }}">{{ status_label }}</span>
     </div>
     {% if study.summary.algo_version %}
     <div class="summary-meta">
@@ -112,18 +160,60 @@
   </div>
 </section>
 
+<section class="grid-2">
+  <div class="panel info-card">
+    <h2>Comparacion con estudio previo</h2>
+    {% if study.get("prior_summary") %}
+    <div class="info-list">
+      <div class="info-item">
+        <span class="info-label">Cambio en volumen total</span>
+        <span class="info-value">{{ study.get("prior_delta_volume", "No disponible") }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Cambio en diametro medio</span>
+        <span class="info-value">{{ study.get("prior_delta_diameter", "No disponible") }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Alertas</span>
+        <span class="info-value">{{ study.get("prior_alerts", "No disponible") }}</span>
+      </div>
+    </div>
+    {% else %}
+    <p class="muted">No hay estudio previo disponible para comparar (modo demo).</p>
+    {% endif %}
+  </div>
+  <div class="panel info-card">
+    <h2>Resumen clinico (informativo)</h2>
+    <div class="info-list">
+      <div class="info-item">
+        <span class="info-label">Riesgo estimado</span>
+        <span class="info-value">{{ risk_label }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Lung-RADS (info)</span>
+        <span class="info-value">{{ study.summary.lung_rads or "No disponible" }}</span>
+      </div>
+      <div class="info-item">
+        <span class="info-label">VDT</span>
+        <span class="info-value">{{ study.summary.vdt_days }} dias</span>
+      </div>
+    </div>
+    <p class="muted">Siguiente paso informativo: revisar la imagen completa y correlacionar con el contexto clinico. Este panel no es diagnostico.</p>
+  </div>
+</section>
+
 <section class="panel">
-  <h2>Detected Nodules</h2>
+  <h2>Nodulos detectados (informativo)</h2>
   <table class="table">
     <thead>
       <tr>
-        <th>Nodule ID</th>
-        <th>Location</th>
-        <th>Texture</th>
-        <th>Volume (mm3)</th>
-        <th>Diameter (mm)</th>
-        <th>VDT (days)</th>
-        <th>Risk</th>
+        <th>ID de nodulo</th>
+        <th>Ubicacion</th>
+        <th>Textura</th>
+        <th>Volumen (mm3)</th>
+        <th>Diametro (mm)</th>
+        <th>VDT (dias)</th>
+        <th>Riesgo estimado</th>
       </tr>
     </thead>
     <tbody>
@@ -135,11 +225,11 @@
         <td>{{ nodule.volume_mm3 }}</td>
         <td>{{ nodule.diameter_mm }}</td>
         <td>{{ nodule.vdt_days }}</td>
-        <td><span class="pill risk-{{ nodule.risk }}">{{ nodule.risk }}</span></td>
+        <td><span class="pill risk-{{ nodule.risk }}">{{ "Bajo" if nodule.risk == "low" else "Medio" if nodule.risk == "medium" else "Alto" if nodule.risk == "high" else nodule.risk }}</span></td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="6">No nodules detected.</td>
+        <td colspan="6">No hay nodulos detectados.</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -154,6 +244,12 @@
   if (toggle && overlay) {
     toggle.addEventListener('change', () => {
       overlay.style.opacity = toggle.checked ? '0.4' : '0';
+    });
+  }
+  const printButton = document.getElementById('printSummary');
+  if (printButton) {
+    printButton.addEventListener('click', () => {
+      window.print();
     });
   }
 </script>

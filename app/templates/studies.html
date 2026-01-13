@@ -2,39 +2,39 @@
 {% block content %}
 <section class="page-header">
   <div>
-    <h1>Study List</h1>
-    <p class="subtitle">Filter and review simulated qCT studies across sites.</p>
+    <h1>Lista de estudios</h1>
+    <p class="subtitle">Vista informativa con estudios simulados por sitio.</p>
   </div>
   <form class="filters" method="get">
     <label>
-      Status
+      Estado clinico
       <select name="status">
-        <option value="" {% if not selected_status %}selected{% endif %}>All</option>
-        <option value="ready" {% if selected_status == "ready" %}selected{% endif %}>Ready</option>
-        <option value="processing" {% if selected_status == "processing" %}selected{% endif %}>Processing</option>
-        <option value="review" {% if selected_status == "review" %}selected{% endif %}>Review</option>
+        <option value="" {% if not selected_status %}selected{% endif %}>Todos</option>
+        <option value="ready" {% if selected_status == "ready" %}selected{% endif %}>Listo</option>
+        <option value="processing" {% if selected_status == "processing" %}selected{% endif %}>En analisis</option>
+        <option value="review" {% if selected_status == "review" %}selected{% endif %}>Listo para revision</option>
       </select>
     </label>
     <label>
-      Risk
+      Riesgo estimado
       <select name="risk">
-        <option value="" {% if not selected_risk %}selected{% endif %}>All</option>
-        <option value="low" {% if selected_risk == "low" %}selected{% endif %}>Low</option>
-        <option value="medium" {% if selected_risk == "medium" %}selected{% endif %}>Medium</option>
-        <option value="high" {% if selected_risk == "high" %}selected{% endif %}>High</option>
+        <option value="" {% if not selected_risk %}selected{% endif %}>Todos</option>
+        <option value="low" {% if selected_risk == "low" %}selected{% endif %}>Bajo</option>
+        <option value="medium" {% if selected_risk == "medium" %}selected{% endif %}>Medio</option>
+        <option value="high" {% if selected_risk == "high" %}selected{% endif %}>Alto</option>
       </select>
     </label>
     <label>
-      Search
+      Buscar
       <input
         type="search"
         name="q"
         value="{{ search_query }}"
-        placeholder="Patient, anon ID, study ID"
+        placeholder="Paciente, anon ID, study ID"
       />
     </label>
     <label>
-      Per page
+      Por pagina
       <select name="per_page">
         {% for size in [10, 20, 50] %}
         <option value="{{ size }}" {% if pagination.per_page == size %}selected{% endif %}>{{ size }}</option>
@@ -48,29 +48,29 @@
 
 <section class="quick-filters" aria-label="Quick filters">
   <div class="quick-filters-group">
-    <span class="quick-filters-label">Quick filters</span>
-    <a class="quick-filter {% if selected_risk == 'high' %}active{% endif %}" href="/studies?risk=high&per_page={{ pagination.per_page }}">High risk</a>
-    <a class="quick-filter {% if selected_status == 'ready' %}active{% endif %}" href="/studies?status=ready&per_page={{ pagination.per_page }}">Ready</a>
-    <button type="button" class="quick-filter" data-quick-filter="last30">Last 30 days</button>
+    <span class="quick-filters-label">Filtros rapidos</span>
+    <a class="quick-filter {% if selected_risk == 'high' %}active{% endif %}" href="/studies?risk=high&per_page={{ pagination.per_page }}">Riesgo alto</a>
+    <a class="quick-filter {% if selected_status == 'ready' %}active{% endif %}" href="/studies?status=ready&per_page={{ pagination.per_page }}">Listo</a>
+    <button type="button" class="quick-filter" data-quick-filter="last30">Ultimos 30 dias</button>
   </div>
   <div class="quick-filters-actions">
-    <button type="button" class="quick-filter export" data-export="studies">Export CSV</button>
+    <button type="button" class="quick-filter export" data-export="studies">Exportar CSV</button>
   </div>
 </section>
 
 <section class="panel">
   <div class="panel-meta">
     <div>
-      <h2>Study Results</h2>
-      <p class="subtitle">Estimated data quality for the current page.</p>
+      <h2>Resultados del estudio</h2>
+      <p class="subtitle">Calidad estimada de los datos en esta pagina.</p>
     </div>
     <div class="quality-summary" aria-live="polite">
       <div class="quality-item">
-        <span>With image</span>
+        <span>Con imagen</span>
         <strong id="qualityImage">--</strong>
       </div>
       <div class="quality-item">
-        <span>With summary</span>
+        <span>Con resumen</span>
         <strong id="qualitySummary">--</strong>
       </div>
     </div>
@@ -78,24 +78,26 @@
   <table class="table">
     <thead>
       <tr>
-        <th>Study ID</th>
-        <th>Patient (anon)</th>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Risk</th>
-        <th>Nodule Count</th>
+        <th>ID de estudio</th>
+        <th>Paciente (anon)</th>
+        <th>Fecha</th>
+        <th>Estado clinico</th>
+        <th>Riesgo estimado</th>
+        <th>Nodulos</th>
       </tr>
     </thead>
     <tbody>
       {% for study in studies %}
       {% set has_summary = study.status in ["ready", "review"] %}
       {% set has_image = study.status != "processing" %}
+      {% set status_label = "Listo" if study.status == "ready" else "En analisis" if study.status == "processing" else "Listo para revision" if study.status == "review" else study.status %}
+      {% set risk_label = "Bajo" if study.overall_risk == "low" else "Medio" if study.overall_risk == "medium" else "Alto" if study.overall_risk == "high" else study.overall_risk %}
       <tr data-study-date="{{ study.study_date }}" data-status="{{ study.status }}" data-has-image="{{ 'true' if has_image else 'false' }}" data-has-summary="{{ 'true' if has_summary else 'false' }}">
         <td><a href="/studies/{{ study.id }}">{{ study.study_uid }}</a></td>
         <td>{{ study.patient_uid }}</td>
         <td>{{ study.study_date }}</td>
-        <td><span class="pill {{ study.status }}">{{ study.status }}</span></td>
-        <td><span class="pill risk-{{ study.overall_risk }}">{{ study.overall_risk }}</span></td>
+        <td><span class="pill {{ study.status }}">{{ status_label }}</span></td>
+        <td><span class="pill risk-{{ study.overall_risk }}">{{ risk_label }}</span></td>
         <td>{{ study.nodule_count }}</td>
       </tr>
       {% else %}
@@ -104,11 +106,11 @@
           <div class="empty-state">
             <div class="empty-icon">(i)</div>
             <div>
-              <strong>No studies match the current filters.</strong>
-              <p class="muted">Try adjusting filters or clearing your search.</p>
+              <strong>No hay estudios con los filtros actuales.</strong>
+              <p class="muted">Prueba ajustar filtros o limpiar la busqueda.</p>
             </div>
             {% if selected_status or selected_risk or search_query %}
-            <a class="empty-action" href="/studies">Clear filters</a>
+            <a class="empty-action" href="/studies">Limpiar filtros</a>
             {% endif %}
           </div>
         </td>
@@ -119,27 +121,27 @@
   <div class="empty-state is-hidden" id="clientEmptyState">
     <div class="empty-icon">(i)</div>
     <div>
-      <strong>No studies in the last 30 days on this page.</strong>
-      <p class="muted">Try clearing the quick filter or change the page.</p>
+      <strong>No hay estudios en los ultimos 30 dias en esta pagina.</strong>
+      <p class="muted">Prueba limpiar el filtro rapido o cambia la pagina.</p>
     </div>
-    <button type="button" class="empty-action" data-clear-quick-filter>Clear quick filter</button>
+    <button type="button" class="empty-action" data-clear-quick-filter>Limpiar filtro rapido</button>
   </div>
   <div class="pagination">
     <div class="pagination-info">
       {% if pagination.total > 0 %}
-      Showing {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total] | min }}
-      of {{ pagination.total }}
+      Mostrando {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total] | min }}
+      de {{ pagination.total }}
       {% else %}
-      No results
+      Sin resultados
       {% endif %}
     </div>
     <div class="pagination-controls">
       {% if pagination.page > 1 %}
-      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page - 1 }}">Previous</a>
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page - 1 }}">Anterior</a>
       {% else %}
-      <span class="pagination-link disabled">Previous</span>
+      <span class="pagination-link disabled">Anterior</span>
       {% endif %}
-      <span class="pagination-page">Page {{ pagination.page }} of {{ pagination.total_pages }}</span>
+      <span class="pagination-page">Pagina {{ pagination.page }} de {{ pagination.total_pages }}</span>
       <form class="pagination-jump" method="get">
         {% for key, value in request.query_params.items() %}
           {% if key != "page" %}
@@ -147,15 +149,15 @@
           {% endif %}
         {% endfor %}
         <label>
-          Go to
+          Ir a
           <input type="number" name="page" min="1" max="{{ pagination.total_pages }}" value="{{ pagination.page }}" />
         </label>
-        <button type="submit">Go</button>
+        <button type="submit">Ir</button>
       </form>
       {% if pagination.page < pagination.total_pages %}
-      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page + 1 }}">Next</a>
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page + 1 }}">Siguiente</a>
       {% else %}
-      <span class="pagination-link disabled">Next</span>
+      <span class="pagination-link disabled">Siguiente</span>
       {% endif %}
     </div>
   </div>

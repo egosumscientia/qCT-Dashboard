@@ -8,14 +8,20 @@ const initCharts = () => {
     medium: '#f0ad4e',
     high: '#d9534f',
   };
+  const riskLabels = {
+    low: 'Bajo',
+    medium: 'Medio',
+    high: 'Alto',
+  };
 
-  const buildRiskFallback = (labels, values) => {
+  const buildRiskFallback = (labels, values, colorKeys = []) => {
     const total = values.reduce((sum, value) => sum + value, 0);
     const rows = labels
       .map((label, index) => {
         const value = values[index];
         const percent = total ? Math.round((value / total) * 100) : 0;
-        const color = riskColors[label] || '#94a3b8';
+        const colorKey = colorKeys[index] || label;
+        const color = riskColors[colorKey] || '#94a3b8';
         return `
           <div class="risk-row">
             <div class="risk-name">${label}</div>
@@ -32,7 +38,7 @@ const initCharts = () => {
 
   const buildTrendFallback = (labels, values) => {
     if (!labels.length) {
-      return '<p class="chart-empty">No trend data available.</p>';
+      return '<p class="chart-empty">No hay datos de tendencia disponibles.</p>';
     }
     const width = 320;
     const height = 140;
@@ -65,8 +71,11 @@ const initCharts = () => {
 
   const riskCtx = document.getElementById('riskChart');
   if (riskCtx) {
-    const labels = window.QCT_DATA.riskBreakdown.map((item) => item.label);
+    const labels = window.QCT_DATA.riskBreakdown.map(
+      (item) => riskLabels[item.label] || item.label
+    );
     const values = window.QCT_DATA.riskBreakdown.map((item) => item.value);
+    const colorKeys = window.QCT_DATA.riskBreakdown.map((item) => item.label);
     const fallback = document.getElementById('riskFallback');
     if (typeof Chart !== 'undefined') {
       new Chart(riskCtx, {
@@ -76,7 +85,7 @@ const initCharts = () => {
           datasets: [
             {
               data: values,
-              backgroundColor: ['#5cb85c', '#f0ad4e', '#d9534f'],
+              backgroundColor: colorKeys.map((label) => riskColors[label] || '#94a3b8'),
             },
           ],
         },
@@ -89,7 +98,7 @@ const initCharts = () => {
       });
     } else if (fallback) {
       riskCtx.style.display = 'none';
-      fallback.innerHTML = buildRiskFallback(labels, values);
+      fallback.innerHTML = buildRiskFallback(labels, values, colorKeys);
     }
   }
 
@@ -105,7 +114,7 @@ const initCharts = () => {
           labels,
           datasets: [
             {
-              label: 'Average Volume (mm3)',
+              label: 'Volumen promedio (mm3)',
               data: values,
               borderColor: '#1f9d96',
               backgroundColor: 'rgba(31, 157, 150, 0.2)',
@@ -157,11 +166,11 @@ const updateMetaIndicators = (uiState = {}) => {
     const start = params.get('start_date');
     const end = params.get('end_date');
     if (start || end) {
-      metaDateRange.textContent = `${start || '...'} to ${end || '...'}`;
+      metaDateRange.textContent = `${start || '...'} a ${end || '...'}`;
     } else if (uiState.quickLast30) {
-      metaDateRange.textContent = 'Last 30 days (page)';
+      metaDateRange.textContent = 'Ultimos 30 dias (pagina)';
     } else {
-      metaDateRange.textContent = 'All time';
+      metaDateRange.textContent = 'Todo el periodo';
     }
   }
 };

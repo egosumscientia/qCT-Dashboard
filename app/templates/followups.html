@@ -2,29 +2,29 @@
 {% block content %}
 <section class="page-header">
   <div>
-    <h1>Longitudinal Follow-ups</h1>
-    <p class="subtitle">Scaffolded view for longitudinal comparisons.</p>
+    <h1>Seguimiento longitudinal</h1>
+    <p class="subtitle">Comparaciones informativas entre estudios.</p>
   </div>
 </section>
 
 <section class="panel">
   <div class="timeline-header">
     <div>
-      <h2>Follow-up Timeline</h2>
-      <p class="subtitle">Most recent longitudinal comparisons across patients.</p>
+      <h2>Linea de tiempo de seguimiento</h2>
+      <p class="subtitle">Comparaciones longitudinales mas recientes.</p>
     </div>
     <form class="pagination-form" method="get">
       <label>
-        Search
+        Buscar
         <input
           type="search"
           name="q"
           value="{{ search_query }}"
-          placeholder="Patient, nodule, study ID"
+          placeholder="Paciente, nodulo, study ID"
         />
       </label>
       <label>
-        Per page
+        Por pagina
         <select name="per_page">
           {% for size in [10, 20, 50] %}
           <option value="{{ size }}" {% if pagination.per_page == size %}selected{% endif %}>{{ size }}</option>
@@ -32,12 +32,14 @@
         </select>
       </label>
       <input type="hidden" name="page" value="1" />
-      <button type="submit">Apply</button>
+      <button type="submit">Aplicar</button>
     </form>
   </div>
   {% if followups %}
   <div class="timeline">
     {% for item in followups %}
+    {% set followup_label = "Estable" if item.status == "stable" else "En seguimiento" if item.status == "monitor" else item.status %}
+    {% set risk_label = "Bajo" if item.risk == "low" else "Medio" if item.risk == "medium" else "Alto" if item.risk == "high" else item.risk %}
     <div class="timeline-item">
       <div class="timeline-date">
         <strong>{{ item.current_date }}</strong>
@@ -48,29 +50,29 @@
           <div class="timeline-title">
             <strong>{{ item.anon_label }}</strong>
           </div>
-          <span class="pill risk-{{ item.risk }}">{{ item.risk }}</span>
+          <span class="pill risk-{{ item.risk }}">{{ risk_label }}</span>
         </div>
         <div class="timeline-meta">
           <div>
-            <span>Nodule</span>
+            <span>Nodulo</span>
             <strong>{{ item.nodule_uid }}</strong>
           </div>
           <div>
-            <span>Growth</span>
+            <span>Crecimiento</span>
             <strong>{{ item.growth_percent }}%</strong>
           </div>
           <div>
-            <span>Status</span>
-            <span class="pill {{ item.status }}">{{ item.status }}</span>
+            <span>Estado</span>
+            <span class="pill {{ item.status }}">{{ followup_label }}</span>
           </div>
           <div>
-            <span>Site</span>
+            <span>Sitio</span>
             <strong>{{ item.site_name }}</strong>
           </div>
         </div>
         <div class="timeline-links">
-          <a href="/studies/{{ item.current_study_id }}">View current study</a>
-          <span class="muted">Prior: {{ item.prior_study_uid }}</span>
+          <a href="/studies/{{ item.current_study_id }}">Ver estudio actual</a>
+          <span class="muted">Previo: {{ item.prior_study_uid }}</span>
         </div>
       </div>
     </div>
@@ -79,19 +81,19 @@
   <div class="pagination">
     <div class="pagination-info">
       {% if pagination.total > 0 %}
-      Showing {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total] | min }}
-      of {{ pagination.total }}
+      Mostrando {{ (pagination.page - 1) * pagination.per_page + 1 }}-{{ [pagination.page * pagination.per_page, pagination.total] | min }}
+      de {{ pagination.total }}
       {% else %}
-      No results
+      Sin resultados
       {% endif %}
     </div>
     <div class="pagination-controls">
       {% if pagination.page > 1 %}
-      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page - 1 }}">Previous</a>
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page - 1 }}">Anterior</a>
       {% else %}
-      <span class="pagination-link disabled">Previous</span>
+      <span class="pagination-link disabled">Anterior</span>
       {% endif %}
-      <span class="pagination-page">Page {{ pagination.page }} of {{ pagination.total_pages }}</span>
+      <span class="pagination-page">Pagina {{ pagination.page }} de {{ pagination.total_pages }}</span>
       <form class="pagination-jump" method="get">
         {% for key, value in request.query_params.items() %}
           {% if key != "page" %}
@@ -99,15 +101,15 @@
           {% endif %}
         {% endfor %}
         <label>
-          Go to
+          Ir a
           <input type="number" name="page" min="1" max="{{ pagination.total_pages }}" value="{{ pagination.page }}" />
         </label>
-        <button type="submit">Go</button>
+        <button type="submit">Ir</button>
       </form>
       {% if pagination.page < pagination.total_pages %}
-      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page + 1 }}">Next</a>
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page + 1 }}">Siguiente</a>
       {% else %}
-      <span class="pagination-link disabled">Next</span>
+      <span class="pagination-link disabled">Siguiente</span>
       {% endif %}
     </div>
   </div>
@@ -115,11 +117,11 @@
   <div class="empty-state">
     <div class="empty-icon">(i)</div>
     <div>
-      <strong>No follow-up comparisons available.</strong>
-      <p class="muted">Try adjusting the search query or clear it to see all results.</p>
+      <strong>No hay comparaciones disponibles.</strong>
+      <p class="muted">Prueba ajustar la busqueda o limpiarla para ver resultados.</p>
     </div>
     {% if search_query %}
-    <a class="empty-action" href="/followups">Clear search</a>
+    <a class="empty-action" href="/followups">Limpiar busqueda</a>
     {% endif %}
   </div>
   {% endif %}

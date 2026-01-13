@@ -829,6 +829,51 @@ h1, h2, h3 {
   color: var(--muted);
 }
 
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.info-card h2 {
+  margin-bottom: 12px;
+}
+
+.info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.info-label {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-size: 11px;
+}
+
+.info-value {
+  font-weight: 600;
+}
+
+.print-pill {
+  border: none;
+  background: rgba(31, 157, 150, 0.2);
+  cursor: pointer;
+}
+
+.print-pill:hover {
+  box-shadow: var(--shadow);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -898,6 +943,33 @@ h1, h2, h3 {
 .login-note {
   font-size: 12px;
   color: var(--muted);
+}
+
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .top-bar,
+  .meta-bar,
+  .banner,
+  .nav,
+  .print-pill,
+  .filters,
+  .quick-filters,
+  .pagination {
+    display: none !important;
+  }
+
+  .container {
+    padding: 0;
+  }
+
+  .panel,
+  .info-card {
+    box-shadow: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
 }
 
 @media (max-width: 768px) {

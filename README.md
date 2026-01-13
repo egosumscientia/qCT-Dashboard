@@ -162,6 +162,15 @@ Acceso:
 - App: `https://<host>`
 - Grafana/Prometheus: solo en localhost (`127.0.0.1`), no expuesto a la red.
 
+## Checklist pre-produccion interna (TI)
+
+- Cambiar credenciales: `AUTH_USERS`, `GRAFANA_ADMIN_USER`, `GRAFANA_ADMIN_PASSWORD`.
+- Definir `AUTH_SESSION_SECRET` fuerte y privado.
+- Generar certificado TLS en `nginx/ssl` (self-signed permitido en intranet).
+- Ejecutar migraciones y seed de demo solo si corresponde.
+- Validar que `/metrics` solo sea accesible desde red interna/localhost.
+- Confirmar que `MOCK_DATA=true` y que no hay pipeline clinico real.
+
 ## No es
 
 - No es un producto clinico real.
