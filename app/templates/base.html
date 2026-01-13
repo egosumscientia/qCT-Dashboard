@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ title or "qCT Dashboard" }}</title>
+  <link rel="stylesheet" href="/static/css/styles.css" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header class="top-bar">
+    <a class="brand" href="/">
+      <span class="brand-mark">qCT</span>
+      <span class="brand-sub">Imaging Results Viewer</span>
+    </a>
+    <nav class="nav">
+      <a href="/" class="nav-link">Overview</a>
+      <a href="/studies" class="nav-link">Studies</a>
+      <a href="/followups" class="nav-link">Follow-ups</a>
+      <a href="/ingestion" class="nav-link">Ingestion</a>
+    </nav>
+  </header>
+  <div class="banner">AI-assisted - simulated data - not for clinical use</div>
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+  <script src="/static/js/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

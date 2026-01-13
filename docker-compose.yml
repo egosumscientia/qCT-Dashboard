@@ -1,0 +1,27 @@
+services:
+  postgres:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: qct
+      POSTGRES_PASSWORD: qct
+      POSTGRES_DB: qct
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  web:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg2://qct:qct@postgres:5432/qct
+      ENVIRONMENT: prod
+      AUTH_FAKE_USER: demo_user
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./images:/app/images
+volumes:
+  postgres_data:

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>qCT Overview</h1>
+    <p class="subtitle">Operational snapshot for simulated AI outputs across client sites.</p>
+  </div>
+  <div class="hero-meta">Last refreshed: {{ (kpis and "now") or "" }}</div>
+</section>
+
+<section class="kpi-grid">
+  <div class="kpi-card">
+    <h3>Total Patients</h3>
+    <p class="kpi-value">{{ kpis.total_patients }}</p>
+  </div>
+  <div class="kpi-card">
+    <h3>Total Studies</h3>
+    <p class="kpi-value">{{ kpis.total_studies }}</p>
+  </div>
+  <div class="kpi-card">
+    <h3>Total Nodules</h3>
+    <p class="kpi-value">{{ kpis.total_nodules }}</p>
+  </div>
+  <div class="kpi-card alert">
+    <h3>High Risk</h3>
+    <p class="kpi-value">{{ kpis.high_risk }}</p>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="panel chart-panel">
+    <h2>Risk Distribution</h2>
+    <div class="chart-shell chart-shell--donut">
+      <canvas id="riskChart" class="chart-canvas chart-donut"></canvas>
+    </div>
+    <div class="chart-fallback" id="riskFallback"></div>
+  </div>
+  <div class="panel chart-panel">
+    <h2>Average Volume Trend</h2>
+    <div class="chart-shell">
+      <canvas id="volumeChart" class="chart-canvas chart-line"></canvas>
+    </div>
+    <div class="chart-fallback" id="volumeFallback"></div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.QCT_DATA = {
+    riskBreakdown: {{ risk_breakdown | tojson }},
+    volumeTrend: {{ volume_trend | tojson }}
+  };
+</script>
+{% endblock %}

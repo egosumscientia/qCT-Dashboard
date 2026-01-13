@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <h1>Longitudinal Follow-ups</h1>
+    <p class="subtitle">Scaffolded view for longitudinal comparisons.</p>
+  </div>
+</section>
+
+<section class="panel">
+  <div class="timeline-header">
+    <div>
+      <h2>Follow-up Timeline</h2>
+      <p class="subtitle">Most recent longitudinal comparisons across patients.</p>
+    </div>
+    <form class="pagination-form" method="get">
+      <label>
+        Search
+        <input
+          type="search"
+          name="q"
+          value="{{ search_query }}"
+          placeholder="Patient, nodule, study ID"
+        />
+      </label>
+      <label>
+        Per page
+        <select name="per_page">
+          {% for size in [10, 20, 50] %}
+          <option value="{{ size }}" {% if pagination.per_page == size %}selected{% endif %}>{{ size }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <input type="hidden" name="page" value="1" />
+      <button type="submit">Apply</button>
+    </form>
+  </div>
+  {% if followups %}
+  <div class="timeline">
+    {% for item in followups %}
+    <div class="timeline-item">
+      <div class="timeline-date">
+        <strong>{{ item.current_date }}</strong>
+        <span class="muted">vs {{ item.prior_date }}</span>
+      </div>
+      <div class="timeline-card">
+        <div class="timeline-card-header">
+          <div class="timeline-title">
+            <strong>{{ item.patient_uid }}</strong>
+            <span class="muted">• {{ item.anon_label }}</span>
+          </div>
+          <span class="pill risk-{{ item.risk }}">{{ item.risk }}</span>
+        </div>
+        <div class="timeline-meta">
+          <div>
+            <span>Nodule</span>
+            <strong>{{ item.nodule_uid }}</strong>
+          </div>
+          <div>
+            <span>Growth</span>
+            <strong>{{ item.growth_percent }}%</strong>
+          </div>
+          <div>
+            <span>Status</span>
+            <span class="pill {{ item.status }}">{{ item.status }}</span>
+          </div>
+          <div>
+            <span>Site</span>
+            <strong>{{ item.site_name }}</strong>
+          </div>
+        </div>
+        <div class="timeline-links">
+          <a href="/studies/{{ item.current_study_id }}">View current study</a>
+          <span class="muted">Prior: {{ item.prior_study_uid }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="pagination">
+    <div class="pagination-info">
+      {% if pagination.total > 0 %}
+      Showing {{ (pagination.page - 1) * pagination.per_page + 1 }}–{{ [pagination.page * pagination.per_page, pagination.total] | min }}
+      of {{ pagination.total }}
+      {% else %}
+      No results
+      {% endif %}
+    </div>
+    <div class="pagination-controls">
+      {% if pagination.page > 1 %}
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page - 1 }}">Previous</a>
+      {% else %}
+      <span class="pagination-link disabled">Previous</span>
+      {% endif %}
+      <span class="pagination-page">Page {{ pagination.page }} of {{ pagination.total_pages }}</span>
+      <form class="pagination-jump" method="get">
+        {% for key, value in request.query_params.items() %}
+          {% if key != "page" %}
+          <input type="hidden" name="{{ key }}" value="{{ value }}" />
+          {% endif %}
+        {% endfor %}
+        <label>
+          Go to
+          <input type="number" name="page" min="1" max="{{ pagination.total_pages }}" value="{{ pagination.page }}" />
+        </label>
+        <button type="submit">Go</button>
+      </form>
+      {% if pagination.page < pagination.total_pages %}
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page + 1 }}">Next</a>
+      {% else %}
+      <span class="pagination-link disabled">Next</span>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <p class="empty-state">No follow-up comparisons available yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

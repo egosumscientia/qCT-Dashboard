@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <h1>Study List</h1>
+    <p class="subtitle">Filter and review simulated qCT studies across sites.</p>
+  </div>
+  <form class="filters" method="get">
+    <label>
+      Status
+      <select name="status">
+        <option value="" {% if not selected_status %}selected{% endif %}>All</option>
+        <option value="ready" {% if selected_status == "ready" %}selected{% endif %}>Ready</option>
+        <option value="processing" {% if selected_status == "processing" %}selected{% endif %}>Processing</option>
+        <option value="review" {% if selected_status == "review" %}selected{% endif %}>Review</option>
+      </select>
+    </label>
+    <label>
+      Risk
+      <select name="risk">
+        <option value="" {% if not selected_risk %}selected{% endif %}>All</option>
+        <option value="low" {% if selected_risk == "low" %}selected{% endif %}>Low</option>
+        <option value="medium" {% if selected_risk == "medium" %}selected{% endif %}>Medium</option>
+        <option value="high" {% if selected_risk == "high" %}selected{% endif %}>High</option>
+      </select>
+    </label>
+    <label>
+      Search
+      <input
+        type="search"
+        name="q"
+        value="{{ search_query }}"
+        placeholder="Patient, anon ID, study ID"
+      />
+    </label>
+    <label>
+      Per page
+      <select name="per_page">
+        {% for size in [10, 20, 50] %}
+        <option value="{{ size }}" {% if pagination.per_page == size %}selected{% endif %}>{{ size }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <input type="hidden" name="page" value="1" />
+    <button type="submit">Apply</button>
+  </form>
+</section>
+
+<section class="panel">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Study ID</th>
+        <th>Patient ID (anon)</th>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Risk</th>
+        <th>Nodule Count</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for study in studies %}
+      <tr>
+        <td><a href="/studies/{{ study.id }}">{{ study.study_uid }}</a></td>
+        <td>{{ study.patient_uid }}</td>
+        <td>{{ study.study_date }}</td>
+        <td><span class="pill {{ study.status }}">{{ study.status }}</span></td>
+        <td><span class="pill risk-{{ study.overall_risk }}">{{ study.overall_risk }}</span></td>
+        <td>{{ study.nodule_count }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6">No studies available.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="pagination">
+    <div class="pagination-info">
+      {% if pagination.total > 0 %}
+      Showing {{ (pagination.page - 1) * pagination.per_page + 1 }}–{{ [pagination.page * pagination.per_page, pagination.total] | min }}
+      of {{ pagination.total }}
+      {% else %}
+      No results
+      {% endif %}
+    </div>
+    <div class="pagination-controls">
+      {% if pagination.page > 1 %}
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page - 1 }}">Previous</a>
+      {% else %}
+      <span class="pagination-link disabled">Previous</span>
+      {% endif %}
+      <span class="pagination-page">Page {{ pagination.page }} of {{ pagination.total_pages }}</span>
+      <form class="pagination-jump" method="get">
+        {% for key, value in request.query_params.items() %}
+          {% if key != "page" %}
+          <input type="hidden" name="{{ key }}" value="{{ value }}" />
+          {% endif %}
+        {% endfor %}
+        <label>
+          Go to
+          <input type="number" name="page" min="1" max="{{ pagination.total_pages }}" value="{{ pagination.page }}" />
+        </label>
+        <button type="submit">Go</button>
+      </form>
+      {% if pagination.page < pagination.total_pages %}
+      <a class="pagination-link" href="?{{ pagination.base_query }}&page={{ pagination.page + 1 }}">Next</a>
+      {% else %}
+      <span class="pagination-link disabled">Next</span>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

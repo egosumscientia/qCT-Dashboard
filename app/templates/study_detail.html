@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <h1>Study Detail</h1>
+    <p class="subtitle">Patient {{ study.patient_uid }} - {{ study.anon_label }}</p>
+  </div>
+  <div class="meta">
+    <span class="pill">{{ study.study_date }}</span>
+    <span class="pill {{ study.status }}">{{ study.status }}</span>
+    <span class="pill risk-{{ study.overall_risk }}">{{ study.overall_risk }}</span>
+  </div>
+</section>
+
+<section class="grid-2">
+  <div class="panel image-panel">
+    <div class="image-header">
+      <h2>CT Preview</h2>
+      <label class="toggle">
+        <input type="checkbox" id="overlayToggle" checked />
+        <span>Overlay</span>
+      </label>
+    </div>
+    <div class="image-wrap">
+      {% if study.image_path %}
+      <img src="/images/{{ study.image_path }}" alt="CT placeholder" id="ctImage" />
+      {% else %}
+      <div class="image-placeholder">No image available</div>
+      {% endif %}
+      <div class="overlay" id="overlayMask"></div>
+    </div>
+  </div>
+  <div class="panel summary-panel">
+    <div class="summary-header">
+      <div>
+        <h2>qCT Summary</h2>
+        <p class="summary-caption">Automated metrics for this study.</p>
+      </div>
+      <span class="pill risk-{{ study.summary.overall_risk }}">Risk {{ study.summary.overall_risk }}</span>
+    </div>
+    <div class="summary-grid">
+      <div class="summary-metric">
+        <div class="summary-label">Volume Total</div>
+        <div class="summary-value">
+          <span class="summary-number">{{ study.summary.volume_total_mm3 }}</span>
+          <span class="summary-unit">mm3</span>
+        </div>
+      </div>
+      <div class="summary-metric">
+        <div class="summary-label">Mean Diameter</div>
+        <div class="summary-value">
+          <span class="summary-number">{{ study.summary.mean_diameter_mm }}</span>
+          <span class="summary-unit">mm</span>
+        </div>
+      </div>
+      <div class="summary-metric">
+        <div class="summary-label">VDT</div>
+        <div class="summary-value">
+          <span class="summary-number">{{ study.summary.vdt_days }}</span>
+          <span class="summary-unit">days</span>
+        </div>
+      </div>
+      <div class="summary-metric">
+        <div class="summary-label">Nodule Count</div>
+        <div class="summary-value">
+          <span class="summary-number">{{ study.nodule_count }}</span>
+          <span class="summary-unit">nodules</span>
+        </div>
+      </div>
+    </div>
+    <div class="summary-notes">
+      <div class="summary-label">Notes</div>
+      <p>{{ study.summary.notes or "" }}</p>
+    </div>
+    <div class="summary-footer">
+      <div class="summary-meta">
+        <span>Study ID</span>
+        <strong>{{ study.study_uid }}</strong>
+      </div>
+      <div class="summary-meta">
+        <span>Status</span>
+        <span class="pill {{ study.status }}">{{ study.status }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="panel">
+  <h2>Detected Nodules</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Nodule ID</th>
+        <th>Location</th>
+        <th>Volume (mm3)</th>
+        <th>Diameter (mm)</th>
+        <th>VDT (days)</th>
+        <th>Risk</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for nodule in study.nodules %}
+      <tr>
+        <td>{{ nodule.nodule_uid }}</td>
+        <td>{{ nodule.location }}</td>
+        <td>{{ nodule.volume_mm3 }}</td>
+        <td>{{ nodule.diameter_mm }}</td>
+        <td>{{ nodule.vdt_days }}</td>
+        <td><span class="pill risk-{{ nodule.risk }}">{{ nodule.risk }}</span></td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="6">No nodules detected.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const toggle = document.getElementById('overlayToggle');
+  const overlay = document.getElementById('overlayMask');
+  if (toggle && overlay) {
+    toggle.addEventListener('change', () => {
+      overlay.style.opacity = toggle.checked ? '0.4' : '0';
+    });
+  }
+</script>
+{% endblock %}
