@@ -131,6 +131,7 @@ def get_study_detail(db: Session, study_id: str) -> dict[str, object] | None:
         "study_date": study.study_date,
         "status": study.status,
         "overall_risk": study.overall_risk,
+        "nodule_count": study.nodule_count,
         "patient_uid": patient.patient_uid,
         "anon_label": patient.anon_label,
         "image_path": image_path or "",
