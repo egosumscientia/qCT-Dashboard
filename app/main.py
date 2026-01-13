@@ -5,6 +5,7 @@ import time
 import uuid
 
 from fastapi import FastAPI, Request, Response, status
+from prometheus_fastapi_instrumentator import Instrumentator
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 from starlette.middleware.cors import CORSMiddleware
@@ -25,6 +26,9 @@ app = FastAPI(title=settings.app_name)
 logger = logging.getLogger("app")
 if settings.environment == "prod" and settings.allow_phi:
     logger.warning("ALLOW_PHI is enabled in prod")
+
+if settings.metrics_enabled:
+    Instrumentator().instrument(app).expose(app, endpoint=settings.metrics_path, include_in_schema=False)
 
 if settings.cors_allow_origins:
     app.add_middleware(

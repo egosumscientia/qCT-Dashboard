@@ -31,6 +31,8 @@ class Settings(BaseSettings):
     db_pool_recycle: int = 1800
     db_connect_timeout: int = 10
     db_statement_timeout_ms: int = 0
+    metrics_enabled: bool = False
+    metrics_path: str = "/metrics"
 
     @field_validator("cors_allow_origins", "cors_allow_methods", "cors_allow_headers", mode="before")
     @classmethod

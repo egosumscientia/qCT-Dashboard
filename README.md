@@ -88,6 +88,8 @@ Config base en `app/core/config.py`:
 - `DB_POOL_RECYCLE`: recycle del pool (segundos).
 - `DB_CONNECT_TIMEOUT`: timeout de conexion (segundos).
 - `DB_STATEMENT_TIMEOUT_MS`: timeout de statement (ms, 0 desactiva).
+- `METRICS_ENABLED`: habilitar endpoint de metrics Prometheus.
+- `METRICS_PATH`: path del endpoint de metrics.
 
 ### Build y runtime
 
@@ -146,3 +148,16 @@ Config base en `app/core/config.py`:
    ```
 
 Visit http://localhost:8000
+
+## Observabilidad local (Prometheus + Grafana)
+
+Con `docker-compose` se levantan Prometheus y Grafana:
+
+```bash
+docker-compose up -d --build
+```
+
+- Prometheus: http://localhost:9090 (job `qct-dashboard`)
+- Grafana: http://localhost:3000 (admin/admin)
+
+> Cambia las credenciales de Grafana antes de exponerlo.

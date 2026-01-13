@@ -19,6 +19,8 @@ services:
       AUTH_FAKE_USER: demo_user
       LOG_LEVEL: INFO
       READY_CHECK_DB: "true"
+      METRICS_ENABLED: "true"
+      METRICS_PATH: /metrics
       WEB_CONCURRENCY: 2
       GUNICORN_TIMEOUT: 60
     depends_on:
@@ -27,5 +29,33 @@ services:
       - "8000:8000"
     volumes:
       - ./images:/app/images
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - web
+  grafana:
+    image: grafana/grafana:10.4.6
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:
