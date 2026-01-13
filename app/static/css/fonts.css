@@ -1,0 +1,15 @@
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 400 700;
+  src: local("Fraunces");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  src: local("DM Sans");
+  font-display: swap;
+}
