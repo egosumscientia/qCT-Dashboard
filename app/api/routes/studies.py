@@ -14,7 +14,7 @@ from app.api.deps import get_db
 from app.core.security import get_current_user
 from app.db.models import AccessAudit, User
 from app.schemas.study import StudyDetail, StudyListItem
-from app.services.queries import count_studies, get_study_detail, list_studies
+from app.services.provider import get_provider
 
 router = APIRouter(prefix="/studies")
 
@@ -31,25 +31,14 @@ def studies_page(
     per_page: int = Query(default=10, ge=1, le=100),
     db: Session = Depends(get_db),
 ):
-    total = count_studies(db, status=status, risk=risk, search=q)
+    provider = get_provider()
+    total = provider.count_studies(db, status=status, risk=risk, search=q)
     total_pages = max(1, ceil(total / per_page)) if per_page else 1
     page = min(page, total_pages)
     offset = (page - 1) * per_page
-    studies = list_studies(
+    rows = provider.list_studies(
         db, status=status, risk=risk, search=q, limit=per_page, offset=offset
     )
-    rows = [
-        {
-            "id": study.id,
-            "study_uid": study.study_uid,
-            "patient_uid": study.patient.patient_uid,
-            "study_date": study.study_date,
-            "status": study.status,
-            "overall_risk": study.overall_risk,
-            "nodule_count": study.nodule_count,
-        }
-        for study in studies
-    ]
     base_params = {"per_page": per_page}
     if status:
         base_params["status"] = status
@@ -87,19 +76,12 @@ def studies_api(
     db: Session = Depends(get_db),
 ):
     offset = (page - 1) * per_page
-    studies = list_studies(
+    provider = get_provider()
+    studies = provider.list_studies(
         db, status=status, risk=risk, search=q, limit=per_page, offset=offset
     )
     return [
-        StudyListItem(
-            id=study.id,
-            study_uid=study.study_uid,
-            patient_uid=study.patient.patient_uid,
-            study_date=study.study_date,
-            status=study.status,
-            overall_risk=study.overall_risk,
-            nodule_count=study.nodule_count,
-        )
+        StudyListItem(**study)
         for study in studies
     ]
 
@@ -110,7 +92,8 @@ def study_detail_page(
     study_id: str,
     db: Session = Depends(get_db),
 ):
-    detail = get_study_detail(db, study_id)
+    provider = get_provider()
+    detail = provider.get_study_detail(db, study_id)
     if not detail:
         raise HTTPException(status_code=404, detail="Study not found")
 
@@ -138,7 +121,8 @@ def study_detail_page(
 
 @router.get("/{study_id}/api", response_model=StudyDetail)
 def study_detail_api(study_id: str, db: Session = Depends(get_db)):
-    detail = get_study_detail(db, study_id)
+    provider = get_provider()
+    detail = provider.get_study_detail(db, study_id)
     if not detail:
         raise HTTPException(status_code=404, detail="Study not found")
 

@@ -9,12 +9,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.services.queries import (
-    count_followups,
-    count_ingestion_logs,
-    get_followup_timeline,
-    get_ingestion_logs,
-)
+from app.services.provider import get_provider
 
 router = APIRouter()
 
@@ -30,11 +25,12 @@ def followups_page(
     db: Session = Depends(get_db),
 ):
     per_page = max(1, min(per_page, 100))
-    total = count_followups(db, search=q)
+    provider = get_provider()
+    total = provider.count_followups(db, search=q)
     total_pages = max(1, ceil(total / per_page))
     page = min(page, total_pages)
     offset = (page - 1) * per_page
-    followups = get_followup_timeline(db, limit=per_page, offset=offset, search=q)
+    followups = provider.get_followup_timeline(db, limit=per_page, offset=offset, search=q)
     pagination = {
         "page": page,
         "per_page": per_page,
@@ -62,11 +58,12 @@ def ingestion_page(
     db: Session = Depends(get_db),
 ):
     per_page = max(1, min(per_page, 100))
-    total = count_ingestion_logs(db, search=q)
+    provider = get_provider()
+    total = provider.count_ingestion_logs(db, search=q)
     total_pages = max(1, ceil(total / per_page))
     page = min(page, total_pages)
     offset = (page - 1) * per_page
-    logs = get_ingestion_logs(db, limit=per_page, offset=offset, search=q)
+    logs = provider.get_ingestion_logs(db, limit=per_page, offset=offset, search=q)
     pagination = {
         "page": page,
         "per_page": per_page,

@@ -10,6 +10,11 @@ class Settings(BaseSettings):
     environment: str = "dev"
     database_url: str = "postgresql+psycopg2://qct:qct@localhost:5432/qct"
     auth_fake_user: str = "demo_user"
+    data_source: str = "mock"
+    allow_phi: bool = False
+    orthanc_url: str = "http://localhost:8042"
+    orthanc_username: str = ""
+    orthanc_password: str = ""
 
 
 settings = Settings()

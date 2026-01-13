@@ -70,6 +70,11 @@ Config base en `app/core/config.py`:
 - `DATABASE_URL`: URL de PostgreSQL.
 - `ENVIRONMENT`: entorno (dev/prod).
 - `AUTH_FAKE_USER`: usuario demo para auditoria.
+- `DATA_SOURCE`: origen de datos (`mock` u `orthanc`).
+- `ALLOW_PHI`: permitir datos de paciente reales (default `false`).
+- `ORTHANC_URL`: base URL de Orthanc (default `http://localhost:8042`).
+- `ORTHANC_USERNAME`: usuario de Orthanc (opcional).
+- `ORTHANC_PASSWORD`: password de Orthanc (opcional).
 
 ### Build y runtime
 
